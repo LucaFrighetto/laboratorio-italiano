@@ -1750,7 +1750,7 @@ function selectWizardClient(id) {
   if(!c) return;
   wizardSelectedClient=c;
   const contacts=parseJSON(c.contacts)||[];
-  wizardSelectedContacts=contacts.map((ct,i)=>{...ct,selected:i===0});
+  wizardSelectedContacts=contacts.map((ct,i)=>({...ct,selected:i===0}));
   wizardPmContact=0;
   renderWizardStep();
 }
@@ -1860,7 +1860,7 @@ function openClientModal(id,fromWizard=false) {
   const c=id?S.clients.find(cl=>cl.id==id):null;
   document.getElementById('client-company').value=c?.company_name||'';
   document.getElementById('client-notes').value=c?.notes||'';
-  S._clientContacts=c?(parseJSON(c.contacts)||[]).map(ct=>{...ct}):[{}];
+  S._clientContacts=c?(parseJSON(c.contacts)||[]).map(ct=>({...ct})):[{}];
   renderContactFields();
   openModal('modal-client');
 }
