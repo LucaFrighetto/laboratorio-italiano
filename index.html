@@ -1,0 +1,2287 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laboratorio Italiano – Project Tracker</title>
+
+<style>
+/* ════════════════════════════════════════════════════════════
+   LABORATORIO ITALIANO — SPACETIHQ DESIGN SYSTEM
+   Faithful recreation of Spacetihq aesthetic
+   © 2025 Laboratorio Italiano
+════════════════════════════════════════════════════════════ */
+
+/* ── FONTS ── */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800&display=swap');
+
+:root {
+  /* Core palette */
+  --bg:           #EBEBEB;
+  --bg-deeper:    #E2E2E2;
+  --surface:      #FFFFFF;
+  --surface-2:    #F7F7F5;
+  --primary:      #FF6B35;
+  --primary-d:    #E05A28;
+  --primary-glow: rgba(255,107,53,0.22);
+  --black:        #1A1A1A;
+  --text:         #1A1A1A;
+  --text-2:       #666666;
+  --text-3:       #AAAAAA;
+  --border:       rgba(0,0,0,0.07);
+  --border-2:     rgba(0,0,0,0.04);
+
+  /* Shadows — Spacetihq style: very soft, large spread */
+  --sh-xs:  0 1px 4px rgba(0,0,0,0.06);
+  --sh-sm:  0 2px 12px rgba(0,0,0,0.07);
+  --sh-md:  0 6px 28px rgba(0,0,0,0.09);
+  --sh-lg:  0 16px 56px rgba(0,0,0,0.13);
+  --sh-xl:  0 28px 80px rgba(0,0,0,0.18);
+
+  /* Radii */
+  --r-xs:  8px;
+  --r-sm:  14px;
+  --r-md:  20px;
+  --r-lg:  28px;
+  --r-xl:  36px;
+  --r-pill:999px;
+
+  /* Nav */
+  --nav-h: 62px;
+
+  /* Status */
+  --s-wait-bg:   #FFF1EB; --s-wait-tx:  #C94A00; --s-wait-br: #FFD4B8;
+  --s-wip-bg:    #EBF2FF; --s-wip-tx:   #1A52C8; --s-wip-br:  #C0D4FF;
+  --s-def-bg:    #FDFAE8; --s-def-tx:   #7A5C00; --s-def-br:  #F0E299;
+  --s-conf-bg:   #EAFAF1; --s-conf-tx:  #1A7A40; --s-conf-br: #A8E4BE;
+  --s-canc-bg:   #F4F4F4; --s-canc-tx:  #888888; --s-canc-br: #DDDDDD;
+  --s-reply-bg:  #FFFBEC; --s-reply-tx: #92400E; --s-reply-br:#F5D06A;
+}
+
+/* ── RESET ── */
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+::-webkit-scrollbar { width:5px; height:5px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:#CCCCCC; border-radius:3px; }
+::-webkit-scrollbar-thumb:hover { background:#AAAAAA; }
+
+/* ══════════════════════════════════════════
+   TOP NAVIGATION — exact Spacetihq spec
+══════════════════════════════════════════ */
+#topnav {
+  position: sticky; top:0; z-index:200;
+  height: var(--nav-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--sh-xs);
+  display: flex; align-items: center; padding: 0 28px; gap:16px;
+}
+.nav-logo {
+  display:flex; align-items:center; gap:10px; flex-shrink:0;
+}
+.nav-logo-circle {
+  width:34px; height:34px; background:var(--black); border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  color:#fff; font-size:11px; font-weight:700; letter-spacing:0.02em;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+}
+.nav-logo-name { font-size:14px; font-weight:700; color:var(--text); letter-spacing:-0.02em; }
+.nav-tabs { flex:1; display:flex; justify-content:center; }
+.nav-tabs-inner {
+  display:flex; align-items:center;
+  background:#EEEEEE; border-radius:var(--r-pill); padding:4px; gap:2px;
+}
+.nav-tab {
+  display:flex; align-items:center; gap:7px; padding:8px 18px;
+  border-radius:var(--r-pill); font-size:13px; font-weight:500;
+  color:#777; border:none; background:transparent; cursor:pointer;
+  transition:all 0.18s cubic-bezier(.4,0,.2,1); white-space:nowrap;
+  font-family:inherit;
+}
+.nav-tab svg { width:14px; height:14px; flex-shrink:0; }
+.nav-tab.active {
+  background:var(--black); color:#fff; font-weight:600;
+  box-shadow:0 2px 10px rgba(0,0,0,0.18);
+}
+.nav-tab:hover:not(.active) { background:rgba(0,0,0,0.07); color:var(--text); }
+.nav-right { font-size:12px; color:var(--text-3); flex-shrink:0; font-weight:500; letter-spacing:0.02em; }
+
+/* ══════════════════════════════════════════
+   PAGE LAYOUT
+══════════════════════════════════════════ */
+#app { padding:26px 30px; max-width:1600px; margin:0 auto; }
+.page { display:none; }
+.page.active { display:block; animation: pgIn 0.3s cubic-bezier(.4,0,.2,1) both; }
+@keyframes pgIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+/* ══════════════════════════════════════════
+   CARDS — floating Spacetihq style
+══════════════════════════════════════════ */
+.card {
+  background:var(--surface); border-radius:var(--r-md);
+  box-shadow:var(--sh-sm); padding:22px 24px;
+  border:1px solid var(--border-2);
+}
+.card-sm {
+  background:var(--surface); border-radius:var(--r-md);
+  box-shadow:var(--sh-sm); padding:16px 18px;
+  border:1px solid var(--border-2);
+}
+
+/* ══════════════════════════════════════════
+   DASHBOARD HERO — 3D image + floating cards
+══════════════════════════════════════════ */
+.dash-hero {
+  position:relative; width:100%; border-radius:var(--r-lg);
+  overflow:hidden; background:var(--bg-deeper);
+  margin-bottom:20px;
+  min-height:360px;
+  box-shadow:var(--sh-md);
+}
+.dash-hero-img {
+  width:100%; height:100%; object-fit:cover;
+  display:block; min-height:360px;
+  filter: brightness(1.02) contrast(1.01);
+}
+/* Floating card overlays on hero */
+.hero-card {
+  position:absolute; background:rgba(255,255,255,0.88);
+  backdrop-filter:blur(12px) saturate(1.4);
+  -webkit-backdrop-filter:blur(12px) saturate(1.4);
+  border-radius:var(--r-md); box-shadow:var(--sh-md);
+  border:1px solid rgba(255,255,255,0.7);
+  padding:16px 20px; transition:transform 0.2s;
+}
+.hero-card:hover { transform:translateY(-2px); box-shadow:var(--sh-lg); }
+.hero-card-tl {
+  top:24px; left:24px; min-width:200px;
+}
+.hero-controls {
+  position:absolute; bottom:20px; right:20px;
+  display:flex; gap:8px; align-items:center;
+}
+.hero-ctrl-btn {
+  width:36px; height:36px; border-radius:50%;
+  background:rgba(255,255,255,0.85); backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,0.6); box-shadow:var(--sh-sm);
+  display:flex; align-items:center; justify-content:center;
+  font-size:16px; cursor:pointer; color:var(--text);
+  transition:all 0.15s; font-family:inherit; font-weight:500;
+}
+.hero-ctrl-btn:hover { background:#fff; box-shadow:var(--sh-md); transform:scale(1.05); }
+.hero-ctrl-3d {
+  padding:0 14px; width:auto; border-radius:var(--r-pill);
+  font-size:12px; font-weight:600; letter-spacing:0.04em;
+}
+
+/* ══════════════════════════════════════════
+   DASHBOARD LAYOUT
+══════════════════════════════════════════ */
+.dash-top-row {
+  display:flex; align-items:flex-start; justify-content:space-between;
+  gap:16px; margin-bottom:20px;
+}
+.dash-project-title {
+  font-size:32px; font-weight:800; letter-spacing:-0.03em; line-height:1.1;
+}
+.dash-project-sub {
+  font-size:14px; color:var(--text-2); margin-top:4px; font-weight:400;
+}
+
+/* Stat cards */
+.stat-cards { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:16px; }
+.stat-card {
+  background:var(--surface); border-radius:var(--r-md);
+  box-shadow:var(--sh-sm); padding:18px 20px;
+  border:1px solid var(--border-2); cursor:pointer;
+  transition:transform 0.18s, box-shadow 0.18s;
+}
+.stat-card:hover { transform:translateY(-3px); box-shadow:var(--sh-md); }
+.stat-card:active { transform:translateY(-1px); }
+
+/* Bottom two-column layout */
+.dash-bottom { display:grid; grid-template-columns:1fr 220px; gap:14px; }
+
+/* Right panel metrics (Spacetihq right sidebar) */
+.metrics-panel {
+  background:var(--surface); border-radius:var(--r-md);
+  box-shadow:var(--sh-sm); padding:16px 18px;
+  border:1px solid var(--border-2);
+}
+.metric-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 0; border-bottom:1px solid #F0F0F0;
+}
+.metric-row:last-child { border-bottom:none; }
+.metric-icon {
+  width:28px; height:28px; border-radius:50%;
+  background:#F5F5F5; display:flex; align-items:center;
+  justify-content:center; font-size:13px; flex-shrink:0;
+}
+.metric-label { font-size:10px; color:var(--text-3); font-weight:600; text-transform:uppercase; letter-spacing:0.07em; }
+.metric-value-big { font-size:13px; font-weight:700; color:var(--text); }
+.metric-bar-wrap { flex:1; height:3px; background:#EEEEEE; border-radius:2px; margin:0 10px; overflow:hidden; }
+.metric-bar-fill { height:100%; border-radius:2px; transition:width 0.5s ease; }
+
+/* ══════════════════════════════════════════
+   PROGRESS BARS
+══════════════════════════════════════════ */
+.prog-wrap {
+  position:relative; height:28px; border-radius:var(--r-pill);
+  background:#E4E4E4; overflow:hidden;
+}
+.prog-fill {
+  position:absolute; left:0; top:0; height:100%;
+  border-radius:var(--r-pill); transition:width 0.5s cubic-bezier(.4,0,.2,1);
+  background:var(--primary);
+}
+.prog-label {
+  position:absolute; inset:0; display:flex;
+  align-items:center; justify-content:center;
+  font-size:12px; font-weight:700; letter-spacing:0.02em;
+}
+.prog-lg { height:36px; border-radius:18px; }
+.prog-lg .prog-label { font-size:13px; }
+
+/* Floor bars */
+.floor-row {
+  display:flex; align-items:center; gap:12px;
+  padding:6px 8px; border-radius:var(--r-sm); margin-bottom:8px;
+  transition:background 0.15s;
+}
+.floor-row:hover { background:#F8F8F8; }
+.floor-row.complete { background:#F0FDF4; }
+.floor-name { font-size:13px; font-weight:600; min-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.floor-bar {
+  flex:1; height:16px; border-radius:8px; background:#E4E4E4; position:relative; overflow:hidden; min-width:60px;
+}
+.floor-bar-fill { position:absolute; left:0; top:0; height:100%; border-radius:8px; transition:width 0.5s ease; }
+.floor-bar-label { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; }
+.floor-count { font-size:11px; color:var(--text-3); min-width:80px; text-align:right; white-space:nowrap; }
+
+/* ══════════════════════════════════════════
+   BUTTONS
+══════════════════════════════════════════ */
+.btn {
+  display:inline-flex; align-items:center; gap:6px;
+  border:none; cursor:pointer; font-family:inherit;
+  font-weight:600; border-radius:var(--r-pill); white-space:nowrap;
+  transition:all 0.16s cubic-bezier(.4,0,.2,1); letter-spacing:-0.01em;
+}
+.btn:hover { transform:translateY(-2px); }
+.btn:active { transform:translateY(0) scale(0.97); transition-duration:0.08s; }
+
+.btn-primary {
+  background:var(--primary); color:#fff;
+  padding:10px 22px; font-size:13px;
+  box-shadow:0 2px 12px var(--primary-glow), 0 1px 4px rgba(0,0,0,0.1);
+}
+.btn-primary:hover { background:var(--primary-d); box-shadow:0 4px 20px var(--primary-glow); }
+
+.btn-outline {
+  background:var(--surface); color:var(--text);
+  border:1px solid rgba(0,0,0,0.12);
+  padding:8px 16px; font-size:12px;
+  box-shadow:var(--sh-xs);
+}
+.btn-outline:hover { border-color:rgba(0,0,0,0.2); background:#FAFAFA; }
+
+.btn-ghost {
+  background:none; color:var(--text-2);
+  border:1px solid rgba(0,0,0,0.1);
+  padding:6px 12px; font-size:12px;
+}
+.btn-ghost:hover { background:#F5F5F5; color:var(--text); }
+
+.btn-sm  { padding:6px 14px; font-size:12px; }
+.btn-xs  { padding:4px 10px; font-size:11px; }
+
+.btn-green {
+  background:#22C55E; color:#fff; padding:9px 20px; font-size:13px;
+  box-shadow:0 2px 12px rgba(34,197,94,0.28);
+}
+.btn-green:hover { background:#16A34A; }
+
+.btn-danger {
+  background:#EF4444; color:#fff; padding:9px 18px; font-size:13px;
+  box-shadow:0 2px 12px rgba(239,68,68,0.22);
+}
+.btn-danger:hover { background:#DC2626; }
+
+/* ══════════════════════════════════════════
+   BADGES
+══════════════════════════════════════════ */
+.badge {
+  display:inline-flex; align-items:center;
+  border-radius:var(--r-pill); padding:4px 11px;
+  font-size:11px; font-weight:700; white-space:nowrap;
+  letter-spacing:0.01em; border:1px solid transparent;
+}
+.badge-waiting   { background:var(--s-wait-bg);  color:var(--s-wait-tx);  border-color:var(--s-wait-br); }
+.badge-wip       { background:var(--s-wip-bg);   color:var(--s-wip-tx);   border-color:var(--s-wip-br); }
+.badge-defined   { background:var(--s-def-bg);   color:var(--s-def-tx);   border-color:var(--s-def-br); }
+.badge-confirmed { background:var(--s-conf-bg);  color:var(--s-conf-tx);  border-color:var(--s-conf-br); }
+.badge-cancelled { background:var(--s-canc-bg);  color:var(--s-canc-tx);  border-color:var(--s-canc-br); }
+.badge-reply     { background:var(--s-reply-bg); color:var(--s-reply-tx); border-color:var(--s-reply-br); }
+
+/* ══════════════════════════════════════════
+   FORMS
+══════════════════════════════════════════ */
+.form-group { display:flex; flex-direction:column; gap:5px; }
+.form-label { font-size:10px; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:0.09em; }
+.form-input {
+  border:1.5px solid rgba(0,0,0,0.1); border-radius:var(--r-sm);
+  padding:9px 13px; font-size:13px; font-family:inherit;
+  outline:none; transition:border-color 0.15s, box-shadow 0.15s;
+  background:#FAFAFA; color:var(--text);
+}
+.form-input:focus { border-color:var(--primary); background:#fff; box-shadow:0 0 0 3px var(--primary-glow); }
+.form-textarea { resize:vertical; min-height:72px; }
+.form-select {
+  appearance:none; cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 10px center; padding-right:30px;
+}
+
+/* ══════════════════════════════════════════
+   MODALS
+══════════════════════════════════════════ */
+.modal-overlay {
+  position:fixed; inset:0; z-index:1000;
+  display:flex; align-items:center; justify-content:center;
+  padding:16px; background:rgba(0,0,0,0);
+  transition:background 0.22s;
+}
+.modal-overlay.show { background:rgba(20,20,20,0.48); backdrop-filter:blur(4px); }
+.modal {
+  background:var(--surface); border-radius:22px;
+  box-shadow:var(--sh-xl), 0 0 0 1px rgba(0,0,0,0.05);
+  width:100%; max-width:560px; max-height:90vh; overflow-y:auto;
+  transform:scale(0.93) translateY(10px); opacity:0;
+  transition:transform 0.26s cubic-bezier(.34,1.56,.64,1), opacity 0.2s ease-out;
+}
+.modal.show { transform:scale(1) translateY(0); opacity:1; }
+.modal-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:20px 24px 16px; border-bottom:1px solid #F0F0F0;
+}
+.modal-title { font-size:16px; font-weight:700; letter-spacing:-0.02em; }
+.modal-body { padding:20px 24px; display:flex; flex-direction:column; gap:14px; }
+.modal-footer {
+  display:flex; justify-content:flex-end; gap:8px;
+  padding:14px 24px 20px; border-top:1px solid #F0F0F0;
+}
+.btn-close {
+  width:28px; height:28px; border-radius:50%;
+  background:#F0F0F0; border:none; cursor:pointer;
+  color:#999; font-size:15px;
+  display:flex; align-items:center; justify-content:center;
+  transition:all 0.12s;
+}
+.btn-close:hover { background:#E0E0E0; color:var(--text); }
+
+/* ══════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════ */
+#toast-container {
+  position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+  z-index:9999; display:flex; flex-direction:column; gap:8px;
+  pointer-events:none; align-items:center;
+}
+.toast {
+  min-width:280px; max-width:460px; padding:13px 18px;
+  border-radius:14px; font-size:13px; font-weight:600;
+  box-shadow:var(--sh-lg); pointer-events:all;
+  display:flex; align-items:center; gap:10px;
+  border:1px solid transparent;
+  animation:toastIn 0.32s cubic-bezier(.34,1.56,.64,1) both;
+}
+.toast.out { animation:toastOut 0.22s ease-in both; }
+.toast-success { background:#F0FDF4; border-color:#BBF7D0; color:#166534; }
+.toast-error   { background:#FFF1F2; border-color:#FECDD3; color:#BE123C; }
+.toast-info    { background:#EFF6FF; border-color:#BFDBFE; color:#1D4ED8; }
+@keyframes toastIn  { from{opacity:0;transform:translateY(20px) scale(0.94)} to{opacity:1;transform:translateY(0) scale(1)} }
+@keyframes toastOut { from{opacity:1;transform:translateY(0)} to{opacity:0;transform:translateY(12px)} }
+
+/* ══════════════════════════════════════════
+   TABLES
+══════════════════════════════════════════ */
+.table-wrap { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+thead tr { background:#F7F7F5; }
+th {
+  padding:11px 14px; font-size:10px; font-weight:700;
+  color:var(--text-3); text-transform:uppercase; letter-spacing:0.09em;
+  text-align:left; border-bottom:1px solid #EBEBEB; white-space:nowrap;
+}
+td { padding:12px 14px; border-bottom:1px solid #F2F2F2; vertical-align:middle; }
+tbody tr:hover td { background:rgba(255,107,53,0.025); }
+tbody tr:last-child td { border-bottom:none; }
+
+/* ══════════════════════════════════════════
+   PROJECT OVERVIEW
+══════════════════════════════════════════ */
+.po-floor-header td {
+  background:#F4F4F2; font-size:10px; font-weight:700;
+  color:#AAAAAA; text-transform:uppercase; letter-spacing:0.08em;
+  padding:9px 14px;
+}
+.po-row-confirmed td { background:#F0FDF4 !important; }
+.po-row-confirmed .po-room-name { color:#16A34A; font-weight:700; }
+.po-row-cancelled td { background:#F7F7F7 !important; color:#BBBBBB; }
+.po-arrow {
+  font-size:18px; color:#CCCCCC; cursor:pointer; background:none;
+  border:none; padding:4px 8px; border-radius:8px; transition:all 0.15s;
+}
+.po-arrow:hover { color:var(--primary); background:#FFF0EB; }
+
+/* ══════════════════════════════════════════
+   ROOM DETAIL
+══════════════════════════════════════════ */
+.room-header-card {
+  background:var(--surface); border-radius:var(--r-md);
+  box-shadow:var(--sh-sm); padding:20px 24px; margin-bottom:14px;
+  border:1px solid var(--border-2);
+}
+.breadcrumb {
+  display:flex; align-items:center; gap:8px;
+  font-size:12px; color:var(--text-3); margin-bottom:18px;
+}
+.breadcrumb a { color:var(--text-3); text-decoration:none; cursor:pointer; transition:color 0.12s; }
+.breadcrumb a:hover { color:var(--primary); }
+.action-bar {
+  display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;
+  position:sticky; top:var(--nav-h); z-index:50;
+  background:var(--bg); padding:10px 0;
+}
+.req-table-wrap {
+  background:var(--surface); border-radius:var(--r-md);
+  box-shadow:var(--sh-sm); overflow:hidden;
+  border:1px solid var(--border-2);
+}
+.req-table thead th {
+  position:sticky; top:calc(var(--nav-h) + 54px);
+  background:#F7F7F5; z-index:40;
+  box-shadow:0 2px 8px rgba(0,0,0,0.04);
+}
+.req-row-waiting   { background:#FFF6F4 !important; }
+.req-row-defined   { background:#F5FDF8 !important; }
+.req-row-cancelled { background:#F7F7F7 !important; opacity:0.6; }
+.req-row-confirmed { background:#F0FDF4 !important; }
+.req-row-reply     { background:#FFFCEC !important; }
+.req-row-highlight { animation:rowFlash 1.5s ease-out both; }
+.req-row-wi-highlight { outline:2px solid #EF4444; outline-offset:-2px; }
+@keyframes rowFlash { 0%,25%{background:#FEFCE8!important} 100%{background:inherit} }
+
+.lang-block { background:#F8F8F6; border-radius:var(--r-xs); padding:7px 9px; }
+.lang-label { font-size:10px; font-weight:700; color:#BBBBBB; text-transform:uppercase; letter-spacing:0.07em; margin-bottom:3px; }
+.lang-text  { font-size:13px; color:var(--text); white-space:pre-wrap; line-height:1.5; }
+.lang-divider { height:1px; background:#EEEEEE; margin:4px 0; }
+
+.img-thumb {
+  width:96px; height:96px; object-fit:cover; border-radius:10px;
+  cursor:pointer; border:2px solid #F0F0F0; transition:all 0.18s; display:block;
+}
+.img-thumb:hover { transform:scale(1.06); border-color:var(--primary); box-shadow:0 4px 14px var(--primary-glow); }
+.img-grid { display:flex; flex-wrap:wrap; gap:6px; }
+.img-author { font-size:10px; color:#BBBBBB; margin-top:3px; text-align:center; font-weight:500; }
+
+/* ══════════════════════════════════════════
+   TECHNICAL LIBRARY
+══════════════════════════════════════════ */
+.tech-lib { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:8px; }
+.tech-lib-col {
+  background:var(--surface); border-radius:var(--r-md);
+  box-shadow:var(--sh-sm); padding:16px 18px;
+  border:1px solid var(--border-2);
+}
+.tech-col-header {
+  font-size:10px; font-weight:700; text-transform:uppercase;
+  letter-spacing:0.09em; color:#BBBBBB; margin-bottom:12px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.file-row {
+  display:flex; align-items:center; gap:8px;
+  padding:8px 0; border-bottom:1px solid #F2F2F2; font-size:12px;
+}
+.file-row:last-child { border-bottom:none; }
+.file-name { flex:1; font-weight:500; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.file-date { font-size:11px; color:#BBBBBB; white-space:nowrap; }
+.badge-last { font-size:9px; font-weight:700; background:var(--primary); color:#fff; border-radius:var(--r-pill); padding:2px 7px; white-space:nowrap; }
+
+/* ══════════════════════════════════════════
+   SETTINGS
+══════════════════════════════════════════ */
+.tech-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 10px; border-radius:10px; transition:background 0.12s;
+}
+.tech-row:hover { background:#FFF5F2; }
+.client-row { border:1px solid #EFEFEF; border-radius:12px; overflow:hidden; margin-bottom:8px; }
+.client-row-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 16px; cursor:pointer; background:#FAFAFA; transition:background 0.12s;
+}
+.client-row-header:hover { background:#FFF5F2; }
+.client-contacts {
+  padding:14px 18px; background:var(--surface); border-top:1px solid #F0F0F0;
+  animation:expandDown 0.22s ease-out both;
+}
+@keyframes expandDown { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+
+/* ══════════════════════════════════════════
+   INIT / LOADING
+══════════════════════════════════════════ */
+#init-screen {
+  display:flex; flex-direction:column; align-items:center;
+  justify-content:center; min-height:80vh; gap:24px; text-align:center;
+}
+#loading-screen {
+  display:flex; align-items:center; justify-content:center;
+  min-height:60vh; gap:16px;
+}
+.spinner {
+  width:34px; height:34px;
+  border:3px solid #E4E4E4; border-top-color:var(--primary);
+  border-radius:50%; animation:spin 0.75s linear infinite;
+}
+@keyframes spin { to{transform:rotate(360deg)} }
+
+/* ══════════════════════════════════════════
+   LIGHTBOX
+══════════════════════════════════════════ */
+#lightbox {
+  position:fixed; inset:0; background:rgba(0,0,0,0.92);
+  z-index:9999; display:none; align-items:center; justify-content:center;
+}
+#lightbox.show { display:flex; animation:lbIn 0.22s ease-out; }
+@keyframes lbIn { from{opacity:0} to{opacity:1} }
+#lightbox img { max-width:90vw; max-height:86vh; border-radius:12px; object-fit:contain; box-shadow:0 20px 60px rgba(0,0,0,0.5); }
+.lb-btn {
+  position:absolute; background:rgba(255,255,255,0.1);
+  border:none; color:#fff; font-size:26px; cursor:pointer;
+  padding:12px 16px; border-radius:10px; transition:background 0.15s;
+  backdrop-filter:blur(4px);
+}
+.lb-btn:hover { background:rgba(255,255,255,0.22); }
+#lb-prev{left:24px} #lb-next{right:24px} #lb-close{top:20px;right:20px;font-size:18px}
+
+/* ══════════════════════════════════════════
+   MISC UTILITIES
+══════════════════════════════════════════ */
+.divider { height:1px; background:#F0F0F0; margin:14px 0; }
+.section-title { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#BBBBBB; margin-bottom:12px; }
+.empty-state { text-align:center; padding:32px 16px; color:#BBBBBB; font-size:13px; }
+.icon-btn {
+  background:none; border:none; cursor:pointer; padding:6px; border-radius:7px;
+  color:#BBBBBB; display:inline-flex; align-items:center; font-size:15px;
+  transition:all 0.12s;
+}
+.icon-btn:hover { background:#F0F0F0; color:var(--text); }
+.icon-btn.danger:hover { background:#FEE2E2; color:#DC2626; }
+.confirmation-text {
+  font-size:12px; color:#166534; background:#DCFCE7;
+  padding:7px 12px; border-radius:8px; margin-top:8px; font-weight:500;
+  border:1px solid #BBF7D0;
+}
+.warning-banner {
+  background:#FFF7ED; border:1px solid #FED7AA;
+  border-radius:var(--r-md); padding:14px 18px;
+  display:flex; gap:12px; align-items:flex-start;
+}
+.warning-icon { color:var(--primary); font-size:16px; flex-shrink:0; margin-top:1px; }
+.warning-text { font-size:11px; font-weight:600; color:#C2410C; text-transform:uppercase; line-height:1.6; letter-spacing:0.02em; }
+.tech-select {
+  border:1.5px solid transparent; border-radius:7px;
+  padding:4px 8px; font-size:12px; font-family:inherit;
+  background:transparent; cursor:pointer; color:var(--text); transition:all 0.15s;
+}
+.tech-select:hover { border-color:rgba(0,0,0,0.1); background:#FAFAFA; }
+.tech-select:focus { border-color:var(--primary); outline:none; background:#fff; box-shadow:0 0 0 3px var(--primary-glow); }
+.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+.recip-cell { padding:10px 8px; vertical-align:top; }
+.floor-pick-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:10px; }
+.floor-pick-card {
+  border:1.5px solid rgba(0,0,0,0.08); border-radius:12px; padding:16px;
+  cursor:pointer; font-size:13px; font-weight:600; text-align:center;
+  transition:all 0.16s; background:var(--surface);
+}
+.floor-pick-card:hover { border-color:var(--primary); background:#FFF5F0; color:var(--primary); transform:translateY(-2px); box-shadow:var(--sh-sm); }
+.room-pick-list { display:flex; flex-direction:column; gap:6px; }
+.room-pick-item {
+  border:1.5px solid rgba(0,0,0,0.08); border-radius:10px; padding:12px 16px;
+  cursor:pointer; font-size:13px; transition:all 0.15s; background:var(--surface);
+}
+.room-pick-item:hover { border-color:var(--primary); background:#FFF5F0; }
+.po-info-cell {
+  padding:4px 20px; border-right:1px solid #F0F0F0;
+}
+.po-info-cell:first-child { padding-left:0; }
+.po-info-cell:last-child { border-right:none; }
+
+@media (max-width:900px) {
+  #app { padding:16px; }
+  .stat-cards { grid-template-columns:1fr; }
+  .tech-lib { grid-template-columns:1fr; }
+  .grid2,.grid3 { grid-template-columns:1fr; }
+  #topnav { padding:0 16px; }
+  .dash-bottom { grid-template-columns:1fr; }
+}
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav id="topnav">
+  <div class="nav-logo">
+    <div class="nav-logo-circle">LI</div>
+    <span class="nav-logo-name">Laboratorio Italiano</span>
+  </div>
+  <div class="nav-tabs">
+    <div class="nav-tabs-inner">
+      <button class="nav-tab active" onclick="showPage('dashboard')" data-page="dashboard">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-tab" onclick="showPage('po')" data-page="po">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        Project Overview
+      </button>
+      <button class="nav-tab" onclick="showPage('settings')" data-page="settings">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Impostazioni
+      </button>
+    </div>
+  </div>
+  <div class="nav-right">Project Tracker</div>
+</nav>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+<!-- LIGHTBOX -->
+<div id="lightbox">
+  <button class="lb-btn" id="lb-close" onclick="closeLightbox()">✕</button>
+  <button class="lb-btn" id="lb-prev" onclick="lbNav(-1)">‹</button>
+  <img id="lb-img" src="" alt="">
+  <button class="lb-btn" id="lb-next" onclick="lbNav(1)">›</button>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+
+  <!-- INIT SCREEN (hidden - Supabase auto-connects) -->
+  <div id="init-screen" style="display:none;">
+    <div style="font-size:52px;">🏗️</div>
+    <h1 style="font-size:30px;font-weight:800;letter-spacing:-0.03em;">Laboratorio Italiano</h1>
+    <p style="color:#AAA;font-size:14px;max-width:420px;line-height:1.7;">
+      Prima configurazione: inserisci i dettagli del tuo sito SharePoint.<br>
+      Accederai con il tuo account Microsoft aziendale.
+    </p>
+    <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:12px;">
+      <div class="form-group">
+        <label class="form-label">Nome tenant SharePoint *</label>
+        <input class="form-input" id="sp-tenant-input" placeholder="es. frighettomobilisrl" />
+        <span style="font-size:11px;color:#AAA;margin-top:2px;">La parte prima di .sharepoint.com</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nome sito SharePoint *</label>
+        <input class="form-input" id="sp-site-input" placeholder="es. LaboratorioItaliano" value="LaboratorioItaliano" />
+      </div>
+      <button class="btn btn-primary" onclick="initializeApp()" style="align-self:center;padding:12px 36px;font-size:14px;">
+        🔐 Accedi con Microsoft
+      </button>
+      <p style="font-size:11px;color:#AAA;text-align:center;">Si aprirà una finestra di login Microsoft. Usa il tuo account aziendale.</p>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div id="loading-screen" style="display:flex;align-items:center;justify-content:center;min-height:60vh;gap:16px;">
+    <div class="spinner"></div>
+    <span style="color:#888;font-size:15px;">Caricamento...</span>
+  </div>
+
+  <!-- DASHBOARD PAGE -->
+  <div id="page-dashboard" class="page" style="display:none;">
+    <!-- Top row: title + button -->
+    <div class="dash-top-row">
+      <div>
+        <h1 class="dash-project-title" id="dash-project-name">Nessun progetto attivo</h1>
+        <p class="dash-project-sub" id="dash-project-ref"></p>
+      </div>
+      <button class="btn btn-primary" onclick="openModal('modal-new-project')">＋ Nuovo Progetto</button>
+    </div>
+
+    <!-- HERO: 3D isometric image with floating cards -->
+    <div class="dash-hero" id="dash-hero">
+      <img class="dash-hero-img" src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=1400&q=80&fit=crop" alt="Project overview" id="dash-hero-img" onerror="this.style.display='none'">
+      <!-- Floating info card top-left -->
+      <div class="hero-card hero-card-tl" id="dash-hero-card">
+        <div style="font-size:11px;color:#AAA;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">Avanzamento Totale</div>
+        <div class="prog-wrap" style="margin-bottom:10px;">
+          <div class="prog-fill" id="dash-total-bar" style="width:0%"></div>
+          <div class="prog-label" id="dash-total-label" style="color:#AAA;font-size:11px;">—</div>
+        </div>
+        <div id="dash-mini-counters" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+      </div>
+      <!-- Hero controls -->
+      <div class="hero-controls">
+        <button class="hero-ctrl-btn" title="Zoom in">＋</button>
+        <button class="hero-ctrl-btn" title="Zoom out">－</button>
+        <button class="hero-ctrl-btn hero-ctrl-3d">3D</button>
+      </div>
+    </div>
+
+    <!-- Stat cards + right metrics panel -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 200px;gap:14px;margin-bottom:14px;align-items:start;">
+      <div id="dash-stat-waiting" class="stat-card" onclick="filterPO('Waiting Information')"></div>
+      <div id="dash-stat-wip" class="stat-card" onclick="filterPO('Work in Progress')"></div>
+      <div id="dash-stat-confirmed" class="stat-card" onclick="filterPO('Confirmed')"></div>
+      <!-- Right metrics panel — Spacetihq style -->
+      <div class="metrics-panel">
+        <div class="section-title" style="margin-bottom:10px;">Accessi Rapidi</div>
+        <div class="metric-row" style="cursor:pointer;" onclick="showPage('po')">
+          <div class="metric-icon">⊟</div>
+          <div style="flex:1;padding:0 8px;">
+            <div class="metric-label">Project</div>
+            <div class="metric-value-big">Overview</div>
+          </div>
+          <span style="color:#CCC;font-size:16px;">›</span>
+        </div>
+        <div class="metric-row" style="cursor:pointer;" onclick="showPage('settings')">
+          <div class="metric-icon">⚙</div>
+          <div style="flex:1;padding:0 8px;">
+            <div class="metric-label">Sistema</div>
+            <div class="metric-value-big">Impostazioni</div>
+          </div>
+          <span style="color:#CCC;font-size:16px;">›</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Floor progress -->
+    <div class="card" id="dash-floor-progress" style="display:none;margin-bottom:14px;">
+      <div class="section-title">Avanzamento per Piano</div>
+      <div id="dash-floor-bars"></div>
+    </div>
+
+    <!-- Project complete banner -->
+    <div id="dash-complete-banner" style="display:none;background:linear-gradient(135deg,#FF6B35,#FF9A6B);border-radius:var(--r-md);padding:24px;text-align:center;margin-top:14px;box-shadow:var(--sh-md);">
+      <h2 style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.02em;">🎉 PROGETTO COMPLETATO!</h2>
+      <p style="font-size:14px;color:rgba(255,255,255,0.8);margin-top:4px;">Tutte le stanze sono state confermate.</p>
+    </div>
+  </div>
+
+  <!-- PROJECT OVERVIEW PAGE -->
+  <div id="page-po" class="page" style="display:none;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <h1 style="font-size:28px;font-weight:700;">Project Overview</h1>
+    </div>
+
+    <!-- Project info card -->
+    <div class="card" id="po-info-card" style="margin-bottom:16px;display:none;">
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-bottom:16px;" id="po-info-grid"></div>
+      <div style="border-top:1px solid #F0F0F0;padding-top:12px;display:flex;align-items:center;gap:12px;">
+        <span style="font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.07em;min-width:110px;">Email Cliente</span>
+        <span id="po-customer-email" style="font-size:14px;color:#888;">Non configurata</span>
+        <button class="btn btn-ghost btn-sm" onclick="editCustomerEmail()">✏ Modifica</button>
+        <span id="po-email-warning" style="display:none;font-size:12px;color:#E8A900;background:#FFFBEA;padding:3px 10px;border-radius:999px;">⚠️ Email non configurata</span>
+      </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;">
+      <button class="btn btn-outline btn-sm" onclick="openAddFloorModal()">＋ Piano</button>
+      <button class="btn btn-outline btn-sm" onclick="openAddRoomModal()">＋ Stanza</button>
+      <button class="btn btn-outline btn-sm" onclick="openFloorRoomPicker('cancel')">🗑 Cancella Stanza</button>
+      <button class="btn btn-outline btn-sm" onclick="openFloorRoomPicker('rename')">✏ Rinomina</button>
+    </div>
+
+    <!-- Completion banner -->
+    <div id="po-complete-banner" style="display:none;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:12px 18px;font-size:14px;color:#166534;font-weight:600;margin-bottom:16px;">
+      ✅ Progetto completato! Tutte le stanze sono confermate.
+    </div>
+
+    <!-- PO Table -->
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div class="table-wrap">
+        <table id="po-table">
+          <thead><tr id="po-thead-row"></tr></thead>
+          <tbody id="po-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROOM DETAIL PAGE -->
+  <div id="page-room" class="page" style="display:none;">
+    <div class="breadcrumb">
+      <a onclick="showPage('po')">← Project Overview</a>
+      <span>/</span>
+      <span id="room-floor-name" style="color:#888;"></span>
+      <span>/</span>
+      <span id="room-name-breadcrumb" style="color:var(--text);font-weight:600;"></span>
+    </div>
+
+    <!-- Room header -->
+    <div class="room-header-card" style="margin-bottom:16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h1 id="room-detail-name" style="font-size:22px;font-weight:700;"></h1>
+          <div style="display:flex;align-items:center;gap:16px;margin-top:6px;font-size:13px;color:#888;flex-wrap:wrap;">
+            <span>Rif: <span id="room-detail-ref">—</span></span>
+            <span>Piano: <span id="room-detail-floor">—</span></span>
+            <span>Tecnico: <select id="room-tech-select" class="tech-select" onchange="saveRoomTechnician(this.value)"></select></span>
+          </div>
+        </div>
+        <div id="room-status-badge"></div>
+      </div>
+      <div id="room-confirmation-text" class="confirmation-text" style="display:none;margin-top:10px;"></div>
+    </div>
+
+    <!-- Action bar -->
+    <div class="action-bar" id="room-action-bar">
+      <button class="btn btn-outline btn-sm" onclick="addRequestRow()">＋ Aggiungi Riga</button>
+      <button class="btn btn-outline btn-sm" onclick="openAddRevisionModal()">＋ Aggiungi Revisione</button>
+      <button class="btn btn-outline btn-sm" onclick="openAddRecipientModal()">＋ Aggiungi Destinatario</button>
+      <button class="btn btn-green btn-sm" id="btn-confirm-room" onclick="confirmRoomClick()">✓ Conferma Stanza</button>
+    </div>
+
+    <!-- Requests table -->
+    <div class="req-table-wrap" style="margin-bottom:16px;">
+      <div class="table-wrap">
+        <table class="req-table">
+          <thead><tr id="req-thead"></tr></thead>
+          <tbody id="req-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Technical Library -->
+    <div class="section-title" style="margin-top:8px;">📁 Libreria Tecnica</div>
+    <div class="tech-lib" style="margin-bottom:16px;">
+      <!-- DWG column -->
+      <div class="tech-lib-col">
+        <div class="tech-col-header">
+          📐 Ultimi DWG
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('dwg-input').click()">＋ Carica DWG</button>
+          <input type="file" id="dwg-input" accept=".dwg" style="display:none;" onchange="uploadDWG(this)">
+        </div>
+        <div id="dwg-list"><div class="empty-state" style="padding:12px;">Nessun DWG caricato.</div></div>
+      </div>
+      <!-- PDF Firmati column -->
+      <div class="tech-lib-col" id="pdf-col">
+        <div class="tech-col-header">
+          ✅ Disegni Firmati
+          <button class="btn btn-ghost btn-sm" id="btn-upload-pdf" onclick="document.getElementById('pdf-input').click()" style="display:none;">＋ Carica PDF</button>
+          <input type="file" id="pdf-input" accept=".pdf" style="display:none;" onchange="uploadPDF(this)">
+        </div>
+        <div id="pdf-list"><div class="empty-state" style="padding:12px;">Nessun disegno firmato.</div></div>
+      </div>
+    </div>
+
+    <!-- Warning banner -->
+    <div class="warning-banner">
+      <span class="warning-icon">⚠</span>
+      <div class="warning-text">
+        ATTENTION: DELIVERY IS TO BE CONSIDERED 120/150 DAYS FROM THE DATE OF CONFIRMATION<br>
+        ATTENZIONE: LA CONSEGNA È DA CONSIDERARE A 120/150 GIORNI DALLA DATA DI CONFERMA
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS PAGE -->
+  <div id="page-settings" class="page" style="display:none;">
+    <h1 style="font-size:28px;font-weight:700;margin-bottom:24px;">Impostazioni</h1>
+
+    <!-- Technicians -->
+    <div class="card" style="margin-bottom:16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+        <h2 style="font-size:18px;font-weight:700;">Tecnici</h2>
+        <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-tech')">＋ Aggiungi Tecnico</button>
+      </div>
+      <div id="tech-list"></div>
+    </div>
+
+    <!-- Clients -->
+    <div class="card" style="margin-bottom:16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+        <h2 style="font-size:18px;font-weight:700;">Clienti</h2>
+        <button class="btn btn-primary btn-sm" onclick="openClientModal(null)">＋ Aggiungi Cliente</button>
+      </div>
+      <div id="client-list"></div>
+    </div>
+
+    <!-- Email log -->
+    <div class="card">
+      <h2 style="font-size:18px;font-weight:700;margin-bottom:16px;">Log Notifiche Email</h2>
+      <div id="email-log-list"><div class="empty-state">Nessuna notifica inviata.</div></div>
+    </div>
+  </div>
+
+</div><!-- /#app -->
+
+<!-- ════════════════════════════════════════════════════
+     MODALS
+════════════════════════════════════════════════════ -->
+
+<!-- New Project Wizard -->
+<div class="modal-overlay" id="modal-new-project">
+  <div class="modal" id="modal-new-project-inner">
+    <div class="modal-header">
+      <span class="modal-title" id="wizard-title">Nuovo Progetto — Step 1/2</span>
+      <button class="btn-close" onclick="closeModal('modal-new-project')">✕</button>
+    </div>
+    <div class="modal-body" id="wizard-body"></div>
+    <div class="modal-footer" id="wizard-footer"></div>
+  </div>
+</div>
+
+<!-- Add Technician -->
+<div class="modal-overlay" id="modal-add-tech">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-tech-title">Aggiungi Tecnico</span>
+      <button class="btn-close" onclick="closeModal('modal-add-tech')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="tech-edit-id">
+      <div class="grid2">
+        <div class="form-group"><label class="form-label">Nome *</label><input class="form-input" id="tech-first" placeholder="Nome"></div>
+        <div class="form-group"><label class="form-label">Cognome *</label><input class="form-input" id="tech-last" placeholder="Cognome"></div>
+        <div class="form-group"><label class="form-label">Ruolo</label><input class="form-input" id="tech-role" placeholder="Es. Elettricista"></div>
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="tech-email" placeholder="nome@studio.it"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-add-tech')">Annulla</button>
+      <button class="btn btn-primary" onclick="saveTechnician()">Salva</button>
+    </div>
+  </div>
+</div>
+
+<!-- Client Modal -->
+<div class="modal-overlay" id="modal-client">
+  <div class="modal" style="max-width:580px;">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-client-title">Aggiungi Cliente</span>
+      <button class="btn-close" onclick="closeModal('modal-client')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="client-edit-id">
+      <div class="form-group"><label class="form-label">Nome Azienda / Cliente *</label><input class="form-input" id="client-company" placeholder="Es. Famiglia Colombo"></div>
+      <div>
+        <div class="form-label" style="margin-bottom:8px;">Persone di Riferimento</div>
+        <div id="client-contacts-form"></div>
+        <button class="btn btn-ghost btn-sm" onclick="addContactField()" style="margin-top:8px;">＋ Aggiungi Persona</button>
+      </div>
+      <div class="form-group"><label class="form-label">Note (max 300 car.)</label><textarea class="form-input form-textarea" id="client-notes" maxlength="300" rows="2" placeholder="Note generali sul cliente"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-client')">Annulla</button>
+      <button class="btn btn-primary" onclick="saveClient()">Salva Cliente</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Floor -->
+<div class="modal-overlay" id="modal-add-floor">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <span class="modal-title">Aggiungi Piano</span>
+      <button class="btn-close" onclick="closeModal('modal-add-floor')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Nome Piano *</label><input class="form-input" id="floor-name-input" placeholder="Es. Piano Terra"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-add-floor')">Annulla</button>
+      <button class="btn btn-primary" onclick="saveFloor()">Aggiungi</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Room -->
+<div class="modal-overlay" id="modal-add-room">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <span class="modal-title">Aggiungi Stanza</span>
+      <button class="btn-close" onclick="closeModal('modal-add-room')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Piano *</label>
+        <select class="form-input form-select" id="room-floor-select"></select>
+      </div>
+      <div class="form-group"><label class="form-label">Nome Stanza *</label><input class="form-input" id="room-name-input" placeholder="Es. Cucina"></div>
+      <div class="form-group">
+        <label class="form-label">Tecnico</label>
+        <select class="form-input form-select" id="room-tech-select-modal"></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-add-room')">Annulla</button>
+      <button class="btn btn-primary" onclick="saveRoom()">Aggiungi</button>
+    </div>
+  </div>
+</div>
+
+<!-- Floor/Room Picker (for rename/cancel) -->
+<div class="modal-overlay" id="modal-floor-room-picker">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-header">
+      <span class="modal-title" id="picker-title">Seleziona Piano</span>
+      <button class="btn-close" onclick="closeModal('modal-floor-room-picker')">✕</button>
+    </div>
+    <div class="modal-body" id="picker-body"></div>
+    <div class="modal-footer" id="picker-footer"></div>
+  </div>
+</div>
+
+<!-- Add Revision -->
+<div class="modal-overlay" id="modal-add-revision">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <span class="modal-title" id="revision-modal-title">Aggiungi Revisione</span>
+      <button class="btn-close" onclick="closeModal('modal-add-revision')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:14px;color:#666;" id="revision-modal-desc"></p>
+      <div class="form-group">
+        <label class="form-label" id="revision-date-label">Data invio revisione precedente *</label>
+        <input class="form-input" type="date" id="revision-prev-date">
+      </div>
+      <div id="revision-error" style="display:none;font-size:13px;color:#E53935;background:#FFEBEE;padding:8px 12px;border-radius:8px;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-add-revision')">Annulla</button>
+      <button class="btn btn-primary" onclick="saveRevision()">Continua</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Recipient -->
+<div class="modal-overlay" id="modal-add-recipient">
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-header">
+      <span class="modal-title">Aggiungi Destinatario</span>
+      <button class="btn-close" onclick="closeModal('modal-add-recipient')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Nome Destinatario *</label><input class="form-input" id="recipient-name-input" placeholder="Es. Architetto"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-add-recipient')">Annulla</button>
+      <button class="btn btn-primary" onclick="saveRecipient()">Aggiungi</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Room -->
+<div class="modal-overlay" id="modal-confirm-room">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <span class="modal-title">Conferma Stanza</span>
+      <button class="btn-close" onclick="closeModal('modal-confirm-room')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:#555;" id="confirm-room-desc"></p>
+      <div class="form-group" style="margin-top:8px;">
+        <label class="form-label">Data di Conferma *</label>
+        <input class="form-input" type="date" id="confirm-room-date">
+      </div>
+      <div id="confirm-room-preview" style="display:none;font-size:12px;color:#166534;background:#F0FDF4;padding:8px 12px;border-radius:8px;margin-top:4px;"></div>
+      <div id="confirm-room-error" style="display:none;font-size:13px;color:#E53935;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-confirm-room')">Annulla</button>
+      <button class="btn btn-green" onclick="confirmRoom()">✅ Conferma</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reactivate Room -->
+<div class="modal-overlay" id="modal-reactivate">
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-header">
+      <span class="modal-title">Riattiva Stanza</span>
+      <button class="btn-close" onclick="closeModal('modal-reactivate')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:15px;">Vuoi riattivare la stanza <strong id="reactivate-room-name"></strong>?</p>
+      <p style="font-size:13px;color:#888;margin-top:6px;">Lo stato tornerà a "Work in Progress".</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-reactivate')">Annulla</button>
+      <button class="btn btn-primary" onclick="reactivateRoom()">🔄 Riattiva</button>
+    </div>
+  </div>
+</div>
+
+<!-- PDF Upload Meta -->
+<div class="modal-overlay" id="modal-pdf-meta">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-header">
+      <span class="modal-title">Dettagli Disegno Firmato</span>
+      <button class="btn-close" onclick="closeModal('modal-pdf-meta')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Nome Disegno *</label><input class="form-input" id="pdf-name-input" placeholder="Es. Cucina_Firmato"></div>
+      <div class="form-group"><label class="form-label">Data Firma Cliente *</label><input class="form-input" type="date" id="pdf-sign-date"></div>
+      <div class="form-group">
+        <label class="form-label">Revisione di Riferimento *</label>
+        <select class="form-input form-select" id="pdf-revision-select"></select>
+      </div>
+      <div id="pdf-meta-error" style="display:none;font-size:13px;color:#E53935;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-pdf-meta')">Annulla</button>
+      <button class="btn btn-green" onclick="confirmPDFUpload()">Carica</button>
+    </div>
+  </div>
+</div>
+
+<!-- Generic Confirm -->
+<div class="modal-overlay" id="modal-generic-confirm">
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-header">
+      <span class="modal-title" id="generic-confirm-title">Conferma</span>
+      <button class="btn-close" onclick="closeModal('modal-generic-confirm')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:15px;" id="generic-confirm-msg"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-generic-confirm')">Annulla</button>
+      <button class="btn btn-danger" id="generic-confirm-btn">Conferma</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════
+//   SUPABASE CONFIG
+// ═══════════════════════════════════════════════════
+const SB_URL = 'https://syoammgazjjxmblaxnyp.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5b2FtbWdhempqeG1ibGF4bnlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5NjUwMzUsImV4cCI6MjA5MzU0MTAzNX0.lEoM7DdtILs_GQ-khBlab2sXNh2lz3oFsKBn78EyDJs';
+
+function sbHeaders(extra={}) {
+  return {
+    'apikey': SB_KEY,
+    'Authorization': `Bearer ${SB_KEY}`,
+    'Content-Type': 'application/json',
+    'Prefer': 'return=representation',
+    ...extra
+  };
+}
+
+// ─── SUPABASE API ─────────────────────────────────
+async function sbGet(table, filters={}) {
+  let url = `${SB_URL}/rest/v1/${table}?select=*`;
+  for (const [k, v] of Object.entries(filters)) {
+    url += `&${k}=eq.${v}`;
+  }
+  url += '&order=created_at.asc&limit=1000';
+  const r = await fetch(url, { headers: sbHeaders() });
+  if (!r.ok) throw new Error(`SB GET ${table}: ${r.status} ${await r.text()}`);
+  return await r.json();
+}
+
+async function sbPost(table, data) {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: sbHeaders(),
+    body: JSON.stringify(data)
+  });
+  if (!r.ok) throw new Error(`SB POST ${table}: ${r.status} ${await r.text()}`);
+  const result = await r.json();
+  return Array.isArray(result) ? result[0] : result;
+}
+
+async function sbPatch(table, id, data) {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: sbHeaders(),
+    body: JSON.stringify(data)
+  });
+  if (!r.ok) throw new Error(`SB PATCH ${table}: ${r.status} ${await r.text()}`);
+  return await r.json();
+}
+
+async function sbDelete(table, id) {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method: 'DELETE',
+    headers: sbHeaders()
+  });
+  if (!r.ok) throw new Error(`SB DELETE ${table}: ${r.status}`);
+}
+
+// ─── STATE ────────────────────────────────────────
+const S = {
+  project: null,
+  floors: [],
+  rooms: [],
+  requests: [],
+  technicians: [],
+  clients: [],
+  workDocs: [],
+  confirmedDrawings: [],
+  emailLogs: [],
+  currentRoomId: null,
+  currentPage: 'dashboard',
+  pickerAction: null,
+  pickerFloor: null,
+  lbImages: [],
+  lbIndex: 0,
+  pendingPDFFile: null,
+  editingTechId: null,
+  editingClientId: null,
+  poFilter: null,
+  _clientContacts: [],
+  _clientFromWizard: false,
+};
+
+// ─── LOAD ALL ─────────────────────────────────────
+async function loadAll() {
+  showLoading(true);
+  try {
+    const [projects, floors, rooms, requests, techs, clients, docs, drawings, logs] = await Promise.all([
+      sbGet('li_projects', {is_active: 'true'}).catch(()=>[]),
+      sbGet('li_floors').catch(()=>[]),
+      sbGet('li_rooms').catch(()=>[]),
+      sbGet('li_requests').catch(()=>[]),
+      sbGet('li_technicians', {is_active: 'true'}).catch(()=>JSON.parse(localStorage.getItem('li_cache_techs')||'[]')),
+      sbGet('li_clients').catch(()=>JSON.parse(localStorage.getItem('li_cache_clients')||'[]')),
+      sbGet('li_work_documents').catch(()=>[]),
+      sbGet('li_confirmed_drawings').catch(()=>[]),
+      sbGet('li_email_logs').catch(()=>[]),
+    ]);
+
+    S.project = projects[0] || null;
+    S.floors = floors.sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
+    S.rooms = rooms.sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
+    S.requests = requests;
+    S.technicians = techs;
+    S.clients = clients;
+    S.workDocs = docs;
+    S.confirmedDrawings = drawings;
+    S.emailLogs = logs;
+
+    if (techs.length) localStorage.setItem('li_cache_techs', JSON.stringify(techs));
+    if (clients.length) localStorage.setItem('li_cache_clients', JSON.stringify(clients));
+
+    showLoading(false);
+    renderAll();
+  } catch(e) {
+    showLoading(false);
+    toast('Errore connessione: ' + e.message, 'error');
+    console.error(e);
+    renderAll();
+  }
+}
+
+// ─── NAVIGATION ───────────────────────────────────
+function showPage(page, render=true) {
+  S.currentPage = page;
+  ['dashboard','po','room','settings'].forEach(p => {
+    const el = document.getElementById('page-'+p);
+    if (el) { el.style.display='none'; el.classList.remove('active'); }
+  });
+  document.querySelectorAll('.nav-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.page===page||(page==='room'&&t.dataset.page==='po'));
+  });
+  const el = document.getElementById('page-'+page);
+  if (el) { el.style.display='block'; el.classList.add('active'); }
+  if (render) {
+    if (page==='dashboard') renderDashboard();
+    if (page==='po') renderPO();
+    if (page==='settings') renderSettings();
+  }
+}
+
+function showLoading(v) {
+  document.getElementById('loading-screen').style.display = v ? 'flex' : 'none';
+  document.getElementById('init-screen').style.display = 'none';
+  if (!v) showPage(S.currentPage, false);
+}
+
+function filterPO(status) { S.poFilter=status; showPage('po'); }
+function renderAll() { renderDashboard(); if(S.currentPage==='po') renderPO(); if(S.currentPage==='settings') renderSettings(); }
+
+// ─── TOAST ────────────────────────────────────────
+function toast(msg, type='info', duration=4000) {
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.textContent = msg;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(()=>{ el.classList.add('out'); setTimeout(()=>el.remove(),300); }, duration);
+}
+
+// ─── MODALS ───────────────────────────────────────
+function openModal(id) {
+  if (id==='modal-new-project') { wizardStep=1; wizardData={}; wizardFloors=[{name:'',rooms:['']}]; wizardSelectedClient=null; wizardSelectedContacts=[]; wizardPmContact=null; renderWizardStep(); }
+  const overlay = document.getElementById(id);
+  overlay.style.display='flex';
+  requestAnimationFrame(()=>{ overlay.classList.add('show'); overlay.querySelector('.modal')?.classList.add('show'); });
+}
+
+function closeModal(id) {
+  const overlay = document.getElementById(id);
+  overlay.classList.remove('show');
+  overlay.querySelector('.modal')?.classList.remove('show');
+  setTimeout(()=>{ overlay.style.display='none'; },200);
+}
+
+// ─── DASHBOARD ────────────────────────────────────
+function renderDashboard() {
+  const p = S.project;
+  document.getElementById('dash-project-name').textContent = p ? p.ref_code : 'Nessun progetto attivo';
+  document.getElementById('dash-project-ref').textContent = p ? (p.customer||'') : '';
+
+  const activeRooms = S.rooms.filter(r=>r.project_id==p?.id&&!r.is_cancelled);
+  const total = activeRooms.length;
+  const waiting = activeRooms.filter(r=>r.status==='Waiting Information').length;
+  const wip = activeRooms.filter(r=>r.status==='Work in Progress').length;
+  const defined = activeRooms.filter(r=>r.status==='Defined').length;
+  const confirmed = activeRooms.filter(r=>r.status==='Confirmed').length;
+  const pct = total>0 ? Math.round(confirmed/total*100) : 0;
+
+  const bar = document.getElementById('dash-total-bar');
+  const lbl = document.getElementById('dash-total-label');
+  if (bar) { bar.style.width=pct+'%'; bar.style.background='var(--primary)'; }
+  if (lbl) {
+    lbl.style.color = pct>40?'#fff':'#AAA';
+    lbl.textContent = total>0 ? `${pct}% — ${confirmed} su ${total} stanze confermate` : 'Nessun progetto attivo';
+  }
+
+  const mc = document.getElementById('dash-mini-counters');
+  if (mc && total>0) {
+    const items = [
+      {e:'🔴',l:'In attesa',c:waiting,s:'Waiting Information'},
+      {e:'🔵',l:'In lavorazione',c:wip,s:'Work in Progress'},
+      {e:'🟡',l:'Definite',c:defined,s:'Defined'},
+      {e:'🟢',l:'Confermate',c:confirmed,s:'Confirmed'},
+    ];
+    mc.innerHTML = items.map(it=>`
+      <button onclick="filterPO('${it.s}')" style="background:rgba(255,255,255,0.7);border:1px solid rgba(0,0,0,0.07);cursor:pointer;padding:5px 10px;border-radius:8px;font-size:12px;color:#666;display:inline-flex;align-items:center;gap:5px;font-family:inherit;transition:all 0.14s;font-weight:500;">
+        ${it.e} ${it.l}: <strong style="color:#1A1A1A;">${it.c}</strong>
+      </button>`).join('');
+  } else if (mc) mc.innerHTML='';
+
+  const statDefs = [
+    {id:'waiting',c:waiting,color:'#C94A00',dot:'#FF6B35',label:'Waiting Information'},
+    {id:'wip',c:wip,color:'#1A52C8',dot:'#4A8CFF',label:'Work in Progress'},
+    {id:'confirmed',c:confirmed,color:'#1A7A40',dot:'#22C55E',label:'Confirmed'},
+  ];
+  statDefs.forEach(({id,c,color,dot,label})=>{
+    const el = document.getElementById('dash-stat-'+id);
+    if (!el) return;
+    const pctVal = total>0?Math.round(c/total*100):0;
+    el.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div style="width:9px;height:9px;border-radius:50%;background:${dot};"></div>
+        <div style="font-size:10px;font-weight:700;color:#AAAAAA;text-transform:uppercase;letter-spacing:0.1em;">${label}</div>
+      </div>
+      <div style="font-size:42px;font-weight:800;letter-spacing:-0.04em;line-height:1;margin-bottom:14px;color:#1A1A1A;">
+        ${c}<span style="font-size:18px;color:#AAAAAA;font-weight:300;"> / ${total}</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:7px;">
+        <div style="height:5px;background:#EBEBEB;border-radius:3px;overflow:hidden;"><div style="height:100%;width:${pctVal}%;background:${dot};border-radius:3px;transition:width 0.5s;"></div></div>
+        <div style="height:5px;background:#EBEBEB;border-radius:3px;overflow:hidden;"><div style="height:100%;width:${Math.round(pctVal*0.55)}%;background:${dot};opacity:0.35;border-radius:3px;transition:width 0.5s;"></div></div>
+      </div>
+      <div style="font-size:12px;font-weight:700;color:${color};text-align:right;">${pctVal}%</div>`;
+  });
+
+  const projectFloors = S.floors.filter(f=>f.project_id==p?.id);
+  const fpEl = document.getElementById('dash-floor-progress');
+  if (projectFloors.length>0&&fpEl) {
+    fpEl.style.display='block';
+    let html='';
+    projectFloors.forEach(floor=>{
+      const fRooms=S.rooms.filter(r=>r.floor_id==floor.id&&!r.is_cancelled);
+      const fConf=fRooms.filter(r=>r.status==='Confirmed').length;
+      const fTotal=fRooms.length;
+      const fPct=fTotal>0?Math.round(fConf/fTotal*100):0;
+      const color=fPct===100?'#16A34A':fPct>=67?'#1D4ED8':fPct>=34?'#F9A825':'#FF6B35';
+      const complete=fPct===100&&fTotal>0;
+      html+=`<div class="floor-row ${complete?'complete':''}">
+        <div class="floor-name">${complete?'🎉 ':''}${floor.floor_name}</div>
+        <div class="floor-bar">
+          ${fPct>0?`<div class="floor-bar-fill" style="width:${fPct}%;background:${color};"></div>`:''}
+          <div class="floor-bar-label" style="color:${fPct>40?'#fff':'#AAA'}">${fPct>0?fPct+'%':''}</div>
+        </div>
+        <div class="floor-count">${fConf}/${fTotal} conf.</div>
+      </div>`;
+    });
+    html+=`<div style="border-top:1px solid #F0F0F0;padding-top:12px;margin-top:8px;">
+      <div class="floor-row" style="margin-bottom:0;">
+        <div class="floor-name" style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:#BBBBBB;">Totale Progetto</div>
+        <div class="floor-bar" style="height:20px;border-radius:10px;">
+          ${pct>0?`<div class="floor-bar-fill" style="width:${pct}%;background:var(--primary);border-radius:10px;"></div>`:''}
+          <div class="floor-bar-label" style="font-size:11px;color:${pct>40?'#fff':'#AAAAAA'};font-weight:700;">${pct>0?pct+'% — '+confirmed+' su '+total+' stanze':''}</div>
+        </div>
+        <div class="floor-count">${confirmed}/${total}</div>
+      </div>
+    </div>`;
+    document.getElementById('dash-floor-bars').innerHTML=html;
+  } else if (fpEl) fpEl.style.display='none';
+
+  document.getElementById('dash-complete-banner').style.display=(total>0&&confirmed===total)?'block':'none';
+}
+
+// ─── PROJECT OVERVIEW ─────────────────────────────
+function renderPO() {
+  const p=S.project;
+  const infoCard=document.getElementById('po-info-card');
+  if (!p) { if(infoCard) infoCard.style.display='none'; document.getElementById('po-tbody').innerHTML='<tr><td colspan="10" class="empty-state">Nessun progetto. Crea un nuovo progetto dalla Dashboard.</td></tr>'; return; }
+  if(infoCard) infoCard.style.display='block';
+
+  const grid=document.getElementById('po-info-grid');
+  if(grid) grid.innerHTML=[
+    {label:'Cliente',value:p.customer||'—'},
+    {label:'PM Cliente',value:p.pm_customer||'—'},
+    {label:'PM Lab',value:p.pm_lab||'—'},
+    {label:'Data Inizio',value:fmtDate(p.start_date)},
+    {label:'Ultima Modifica',value:fmtDateTime(p.last_change_date)},
+  ].map((c,i)=>`<div class="po-info-cell"><div style="font-size:10px;font-weight:600;color:#AAA;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:3px;">${c.label}</div><div style="font-size:14px;font-weight:700;">${c.value}</div></div>`).join('');
+
+  const emailEl=document.getElementById('po-customer-email');
+  if(emailEl) { emailEl.textContent=p.customer_email||'Non configurata'; emailEl.style.color=p.customer_email?'#1A1A1A':'#888'; }
+  const warn=document.getElementById('po-email-warning');
+  if(warn) warn.style.display=p.customer_email?'none':'inline-flex';
+
+  const projectRooms=S.rooms.filter(r=>r.project_id==p.id);
+  const projectRequests=S.requests.filter(r=>r.project_id==p.id);
+  const allRevs=[...new Set(projectRequests.map(r=>r.revision))].filter(Boolean).sort((a,b)=>revNum(a)-revNum(b));
+  const roomRevDates={};
+  projectRequests.forEach(r=>{ if(!r.room_id||!r.revision) return; if(!roomRevDates[r.room_id]) roomRevDates[r.room_id]={}; if(r.revision_date&&!roomRevDates[r.room_id][r.revision]) roomRevDates[r.room_id][r.revision]=r.revision_date; });
+  const drawingCount={};
+  S.confirmedDrawings.forEach(d=>{ drawingCount[d.room_id]=(drawingCount[d.room_id]||0)+1; });
+
+  const thead=document.getElementById('po-thead-row');
+  if(thead) thead.innerHTML=['Nr','Stanza','Tecnico',...allRevs,'Stato','Data Conferma','✅ Firmati',''].map(h=>`<th>${h}</th>`).join('');
+
+  const tbody=document.getElementById('po-tbody');
+  const projectFloors=S.floors.filter(f=>f.project_id==p.id).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
+  let html='';
+
+  projectFloors.forEach(floor=>{
+    const floorRooms=projectRooms.filter(r=>r.floor_id==floor.id).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
+    if(S.poFilter&&!floorRooms.some(r=>r.status===S.poFilter)) return;
+    html+=`<tr class="po-floor-header"><td colspan="${4+allRevs.length+3}">${floor.floor_name}</td></tr>`;
+    floorRooms.forEach((room,ri)=>{
+      if(S.poFilter&&room.status!==S.poFilter&&!room.is_cancelled) return;
+      const isConf=room.status==='Confirmed';
+      const isCancelled=room.is_cancelled;
+      const rowClass=isConf?'po-row-confirmed':isCancelled?'po-row-cancelled':'';
+      const roomRevs=[...new Set((S.requests.filter(r=>r.room_id==room.id)).map(r=>r.revision))].filter(Boolean);
+      const revCells=allRevs.map(rev=>{
+        const hasRev=roomRevs.includes(rev);
+        const date=hasRev?fmtDate(roomRevDates[room.id]?.[rev]):'—';
+        return `<td style="font-size:12px;color:${hasRev?(isConf?'#2E7D32':'#1A1A1A'):'#CCC'};font-weight:${hasRev?600:400};">${date}</td>`;
+      }).join('');
+      const dc=drawingCount[room.id]||0;
+      html+=`<tr class="${rowClass}">
+        <td style="color:#AAA;font-size:12px;">${ri+1}</td>
+        <td class="po-room-name" style="font-weight:500;font-size:13px;">${room.room_name}</td>
+        <td><select class="tech-select" onchange="updateRoomTech('${room.id}',this.value)">${techOptions(room.technician)}</select></td>
+        ${revCells}
+        <td>${statusBadge(room.status)}</td>
+        <td style="font-size:11px;color:${isConf?'#166534':'#888'};font-weight:${isConf?600:400};line-height:1.5;">${room.confirmation_text||fmtDate(room.confirmed_date)||'—'}</td>
+        <td style="text-align:center;">${dc>0?`<span style="font-size:12px;color:#166534;font-weight:600;">${dc} pdf</span>`:'<span style="color:#CCC;font-size:12px;">—</span>'}</td>
+        <td style="text-align:right;">${isCancelled?`<button class="btn btn-ghost btn-sm" onclick="openReactivateModal('${room.id}','${esc(room.room_name)}')">🔄 Riattiva</button>`:`<button class="po-arrow" onclick="openRoom('${room.id}')">›</button>`}</td>
+      </tr>`;
+    });
+  });
+
+  if(!html) html=`<tr><td colspan="${4+allRevs.length+3}" class="empty-state">Nessuna stanza. Aggiungi piano e stanze.</td></tr>`;
+  if(tbody) tbody.innerHTML=html;
+
+  const active=projectRooms.filter(r=>!r.is_cancelled);
+  const allConf=active.length>0&&active.every(r=>r.status==='Confirmed');
+  const banner=document.getElementById('po-complete-banner');
+  if(banner) banner.style.display=allConf?'block':'none';
+  S.poFilter=null;
+}
+
+// ─── ROOM DETAIL ──────────────────────────────────
+function openRoom(roomId) { S.currentRoomId=roomId; showPage('room',false); renderRoomDetail(); }
+
+function renderRoomDetail() {
+  const roomId=S.currentRoomId;
+  const room=S.rooms.find(r=>r.id==roomId);
+  if(!room) return;
+  const floor=S.floors.find(f=>f.id==room.floor_id);
+
+  document.getElementById('room-floor-name').textContent=floor?.floor_name||'';
+  document.getElementById('room-name-breadcrumb').textContent=room.room_name;
+  document.getElementById('room-detail-name').textContent=room.room_name;
+  document.getElementById('room-detail-ref').textContent=S.project?.ref_code||'—';
+  document.getElementById('room-detail-floor').textContent=floor?.floor_name||'—';
+
+  const ts=document.getElementById('room-tech-select');
+  if(ts) { ts.innerHTML=techOptions(room.technician); ts.value=room.technician||''; }
+
+  document.getElementById('room-status-badge').innerHTML=statusBadge(room.status,true);
+  const ct=document.getElementById('room-confirmation-text');
+  if(ct) { if(room.confirmation_text) { ct.textContent=room.confirmation_text; ct.style.display='block'; } else ct.style.display='none'; }
+
+  const btnConf=document.getElementById('btn-confirm-room');
+  if(btnConf) btnConf.style.display=(room.is_cancelled||room.status==='Confirmed')?'none':'';
+
+  renderRequestsTable();
+  renderTechLibrary();
+}
+
+function renderRequestsTable() {
+  const roomId=S.currentRoomId;
+  const room=S.rooms.find(r=>r.id==roomId);
+  const requests=S.requests.filter(r=>r.room_id==roomId).sort((a,b)=>{
+    const rd=revNum(a.revision)-revNum(b.revision);
+    return rd!==0?rd:(a.nr||0)-(b.nr||0);
+  });
+  const revisions=[...new Set(requests.map(r=>r.revision))].filter(Boolean).sort((a,b)=>revNum(a)-revNum(b));
+  const allRecips=[...new Set(requests.flatMap(r=>(parseJSON(r.recipients)||[]).map(rc=>rc.name)).filter(Boolean))];
+  const readOnly=room?.is_cancelled;
+
+  const thead=document.getElementById('req-thead');
+  if(thead) thead.innerHTML=['<th style="text-align:center;width:40px;">Nr</th>','<th style="text-align:center;width:50px;">Rev</th>','<th style="min-width:280px;">Richiesta LAB</th>','<th style="min-width:120px;">Immagini</th>','<th style="min-width:140px;">Stato</th>','<th style="min-width:240px;">Risposta Cliente</th>',...allRecips.map(r=>`<th colspan="2" style="min-width:160px;">${esc(r)}</th>`)].join('');
+
+  const tbody=document.getElementById('req-tbody');
+  if(requests.length===0) { if(tbody) tbody.innerHTML=`<tr><td colspan="${6+allRecips.length*2}" class="empty-state">Nessuna richiesta. Clicca "Aggiungi Riga".</td></tr>`; return; }
+
+  let html='';
+  const revGroups={};
+  requests.forEach(r=>{ if(!revGroups[r.revision]) revGroups[r.revision]=[]; revGroups[r.revision].push(r); });
+
+  revisions.forEach(rev=>{
+    const revReqs=revGroups[rev]||[];
+    const revDate=revReqs[0]?.revision_date;
+    html+=`<tr><td colspan="${6+allRecips.length*2}" style="background:#ECECEC;padding:7px 12px;font-size:11px;font-weight:700;text-transform:uppercase;color:#666;letter-spacing:0.06em;">${rev}${revDate?' — '+fmtDate(revDate):''}</td></tr>`;
+
+    revReqs.forEach((req,idx)=>{
+      const isLast=rev===revisions[revisions.length-1]&&idx===revReqs.length-1;
+      const isCancelled=req.status==='Cancelled';
+      const isConfirmed=req.status==='Confirmed';
+      const hasReply=req.has_customer_reply;
+      const rowReadOnly=readOnly||isCancelled||isConfirmed;
+
+      let rowClass='';
+      if(hasReply&&req.status==='Waiting Information') rowClass='req-row-reply';
+      else if(req.status==='Waiting Information') rowClass='req-row-waiting';
+      else if(req.status==='Defined') rowClass='req-row-defined';
+      else if(isCancelled) rowClass='req-row-cancelled';
+      else if(isConfirmed) rowClass='req-row-confirmed';
+
+      const labImg=req.image_url?`<div><img src="${esc(req.image_url)}" class="img-thumb" onclick="openLightbox([{url:'${esc(req.image_url)}',label:'📤 Lab'}],0)"><div class="img-author">📤 Lab</div></div>`:'';
+      const custImgs=(parseJSON(req.customer_images)||[]).map((img,i)=>`<div><img src="${esc(img.url)}" class="img-thumb" onclick="openLightbox(${JSON.stringify(parseJSON(req.customer_images))},${i})"><div class="img-author">👤 Cliente</div></div>`).join('');
+      const uploadLabBtn=!rowReadOnly?`<label style="cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;width:70px;height:70px;border:2px dashed #E0E0E0;border-radius:8px;color:#AAA;font-size:11px;"><span style="font-size:18px;">+</span>Lab<input type="file" accept="image/*" style="display:none;" onchange="uploadLabImage('${req.id}',this)"></label>`:'';
+      const uploadCustBtn=!rowReadOnly?`<label style="cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;width:70px;height:70px;border:2px dashed #E0E0E0;border-radius:8px;color:#AAA;font-size:11px;"><span style="font-size:18px;">+</span>Cliente<input type="file" accept="image/*" style="display:none;" onchange="uploadCustomerImage('${req.id}',this)"></label>`:'';
+
+      const statusCell=rowReadOnly?statusBadge(req.status):`<select class="form-input form-select" style="font-size:12px;padding:5px 24px 5px 8px;height:auto;" onchange="updateRequestStatus('${req.id}',this.value)"><option value="Waiting Information" ${req.status==='Waiting Information'?'selected':''}>⏳ Waiting Information</option><option value="Defined" ${req.status==='Defined'?'selected':''}>✓ Defined</option><option value="Cancelled" ${req.status==='Cancelled'?'selected':''}>✕ Cancelled</option></select>`;
+      const replyBadge=hasReply&&req.status==='Waiting Information'?`<div style="margin-top:6px;"><span class="badge badge-reply">🕐 Risposta ricevuta — in attesa di verifica</span></div>`:'';
+
+      const recipCells=allRecips.map((rec,ri)=>{
+        const recipData=(parseJSON(req.recipients)||[]).find(r=>r.name===rec)||{};
+        const colors=['#FFF3E0','#F3E5F5','#FFFDE7'];
+        const bg=colors[ri%colors.length];
+        return `<td class="recip-cell" style="background:${bg};vertical-align:top;"><div style="background:rgba(255,255,255,0.6);border-radius:8px;padding:8px;">${rowReadOnly?`<p style="font-size:13px;margin:0;">${esc(recipData.response||'—')}</p>`:`<textarea style="width:100%;border:none;background:transparent;font-size:13px;font-family:inherit;resize:none;outline:none;min-height:50px;" onchange="updateRecipient('${req.id}','${esc(rec)}','response',this.value)" placeholder="Risposta">${esc(recipData.response||'')}</textarea>`}${recipData.date?`<div style="font-size:11px;color:#888;margin-top:4px;">📅 ${fmtDate(recipData.date)}</div>`:''}</div></td><td class="recip-cell" style="background:${bg};vertical-align:top;">${rowReadOnly?`<span style="font-size:12px;color:#888;">${esc(recipData.notes||'—')}</span>`:`<input class="form-input" style="font-size:12px;padding:5px 8px;" value="${esc(recipData.notes||'')}" placeholder="Note" onchange="updateRecipient('${req.id}','${esc(rec)}','notes',this.value)">`}</td>`;
+      }).join('');
+
+      html+=`<tr id="req-row-${req.id}" class="${rowClass}" ${isLast?'data-last-row="true"':''}>
+        <td style="text-align:center;color:#AAA;font-size:12px;">${req.nr}</td>
+        <td style="text-align:center;font-size:12px;font-weight:600;">${req.revision}</td>
+        <td style="vertical-align:top;padding:10px 12px;">
+          <div class="lang-block" style="margin-bottom:2px;">
+            <div class="lang-label">🇮🇹 Italiano</div>
+            ${rowReadOnly?`<div class="lang-text">${esc(req.lab_request_it||'—')}</div>`:`<textarea class="lang-text" style="width:100%;border:none;background:transparent;font-family:inherit;resize:none;outline:none;min-height:44px;" onchange="updateLabRequest('${req.id}',this.value)" placeholder="Scrivi in italiano...">${esc(req.lab_request_it||'')}</textarea>`}
+            ${req.requested_date?`<div style="font-size:11px;color:#AAA;margin-top:3px;">📅 ${fmtDate(req.requested_date)}</div>`:''}
+          </div>
+          <div class="lang-divider"></div>
+          <div class="lang-block" style="margin-top:2px;">
+            <div class="lang-label">🇬🇧 English</div>
+            <div class="lang-text" id="en-${req.id}">${esc(req.lab_request_en||'—')}</div>
+          </div>
+        </td>
+        <td style="vertical-align:top;padding:10px 12px;"><div class="img-grid">${labImg}${custImgs}${uploadLabBtn}${uploadCustBtn}</div></td>
+        <td style="vertical-align:top;padding:10px 12px;">${statusCell}${replyBadge}</td>
+        <td style="vertical-align:top;padding:10px 12px;">
+          <div class="lang-block">
+            ${rowReadOnly?`<div class="lang-text">${esc(req.customer_response||'—')}</div>`:`<textarea class="lang-text" style="width:100%;border:none;background:transparent;font-family:inherit;resize:none;outline:none;min-height:44px;" onchange="updateCustomerResponse('${req.id}',this.value)" placeholder="Risposta cliente...">${esc(req.customer_response||'')}</textarea>`}
+            ${req.customer_response_en?`<div class="lang-divider" style="margin:4px 0;"></div><div class="lang-label">🇬🇧 English</div><div class="lang-text" style="color:#555;">${esc(req.customer_response_en)}</div>`:''}
+          </div>
+        </td>
+        ${recipCells}
+      </tr>`;
+    });
+  });
+
+  if(tbody) tbody.innerHTML=html;
+  setTimeout(()=>{
+    const lastRow=tbody?.querySelector('[data-last-row="true"]');
+    if(lastRow) { lastRow.scrollIntoView({behavior:'smooth',block:'center'}); lastRow.classList.add('req-row-highlight'); setTimeout(()=>lastRow.classList.remove('req-row-highlight'),1500); }
+  },400);
+}
+
+function renderTechLibrary() {
+  const roomId=S.currentRoomId;
+  const room=S.rooms.find(r=>r.id==roomId);
+  const docs=S.workDocs.filter(d=>d.room_id==roomId).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  const drawings=S.confirmedDrawings.filter(d=>d.room_id==roomId).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  const isConf=room?.status==='Confirmed';
+
+  const dwgEl=document.getElementById('dwg-list');
+  if(dwgEl) dwgEl.innerHTML=docs.length===0?'<div class="empty-state" style="padding:12px;">Nessun DWG caricato.</div>':docs.map((d,i)=>`<div class="file-row"><span>📐</span><a href="${esc(d.file_url)}" target="_blank" class="file-name" style="color:#1A1A1A;text-decoration:none;">${esc(d.file_name)}</a>${i===0?'<span class="badge-last">🕐 Ultimo</span>':''}<span class="file-date">${fmtDate(d.upload_date)}</span><button class="icon-btn danger" onclick="deleteDWG('${d.id}')">🗑</button></div>`).join('');
+
+  const pdfEl=document.getElementById('pdf-list');
+  const pdfBtn=document.getElementById('btn-upload-pdf');
+  if(!isConf) {
+    if(pdfBtn) pdfBtn.style.display='none';
+    if(pdfEl) pdfEl.innerHTML='<div style="background:#FFFBEA;border:1px solid #FDE68A;border-radius:8px;padding:10px 14px;font-size:13px;color:#92400E;">⚠️ Disponibile dopo la conferma della stanza.</div>';
+  } else {
+    if(pdfBtn) pdfBtn.style.display='';
+    if(pdfEl) pdfEl.innerHTML=drawings.length===0?'<div class="empty-state" style="padding:12px;">Nessun disegno firmato.</div>':drawings.map(d=>`<div class="file-row"><span>📄</span><div class="file-name"><div style="font-weight:600;">${esc(d.file_name)}</div>${d.sign_date?`<div style="font-size:11px;color:#166534;">✅ Firmato il ${fmtDate(d.sign_date)} — Rev. ${esc(d.revision)}</div>`:''} </div><a href="${esc(d.file_url)}" download class="icon-btn">⬇</a><button class="icon-btn danger" onclick="deletePDF('${d.id}')">🗑</button></div>`).join('');
+  }
+}
+
+// ─── SETTINGS ─────────────────────────────────────
+function renderSettings() { renderTechList(); renderClientList(); renderEmailLog(); }
+
+function renderTechList() {
+  const el=document.getElementById('tech-list');
+  if(!el) return;
+  const active=S.technicians.filter(t=>t.is_active!==false&&t.is_active!=='false');
+  if(!active.length) { el.innerHTML='<div class="empty-state">Nessun tecnico registrato.</div>'; return; }
+  el.innerHTML=active.map((t,i)=>`<div class="tech-row" style="${i<active.length-1?'border-bottom:1px solid #F5F5F5':''}"><div><span style="font-weight:600;font-size:14px;">${esc(t.first_name)} ${esc(t.last_name)}</span>${t.role?`<span style="font-size:13px;color:#888;margin-left:6px;">(${esc(t.role)})</span>`:''}<span style="font-size:12px;color:${t.email?'#1D4ED8':'#E8A900'};margin-left:10px;">${t.email?'✉ '+esc(t.email):'⚠️ email mancante'}</span></div><div style="display:flex;gap:4px;"><button class="icon-btn" onclick="editTechnician('${t.id}')">✏</button><button class="icon-btn danger" onclick="deactivateTechnician('${t.id}')">🗑</button></div></div>`).join('');
+}
+
+function renderClientList() {
+  const el=document.getElementById('client-list');
+  if(!el) return;
+  if(!S.clients.length) { el.innerHTML='<div class="empty-state">Nessun cliente registrato.</div>'; return; }
+  el.innerHTML=S.clients.map(c=>{
+    const contacts=parseJSON(c.contacts)||[];
+    const firstEmail=contacts[0]?.email||'';
+    return `<div class="client-row"><div class="client-row-header" onclick="toggleClientExpand('${c.id}')"><div style="display:flex;align-items:center;gap:10px;"><span style="color:#AAA;">${c._open?'▼':'▶'}</span><span style="font-weight:700;font-size:14px;">${esc(c.company_name)}</span>${firstEmail?`<span style="font-size:12px;color:#1D4ED8;">${esc(firstEmail)}</span>`:''}</div><div style="display:flex;gap:4px;" onclick="event.stopPropagation()"><button class="icon-btn" onclick="openClientModal('${c.id}')">✏</button><button class="icon-btn danger" onclick="deleteClient('${c.id}')">🗑</button></div></div>${c._open?`<div class="client-contacts">${contacts.map(ct=>`<div style="padding:8px 0;border-bottom:1px dashed #F0F0F0;"><span style="font-size:16px;">👤</span> <span style="font-size:13px;font-weight:600;">${esc(ct.full_name)}</span>${ct.role?` <span style="font-size:12px;color:#888;">— ${esc(ct.role)}</span>`:''}${ct.email?` <span style="font-size:12px;color:#1D4ED8;">— ${esc(ct.email)}</span>`:''}${ct.phone?` <span style="font-size:12px;color:#888;">— ${esc(ct.phone)}</span>`:''}</div>`).join('')}${c.notes?`<p style="font-size:12px;color:#555;margin-top:10px;padding:8px;background:#F5F5F5;border-radius:8px;">📝 ${esc(c.notes)}</p>`:''}</div>`:''} </div>`;
+  }).join('');
+}
+
+function renderEmailLog() {
+  const el=document.getElementById('email-log-list');
+  if(!el) return;
+  if(!S.emailLogs.length) { el.innerHTML='<div class="empty-state">Nessuna notifica inviata.</div>'; return; }
+  el.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:13px;"><thead><tr style="background:#F9F9F9;">${['Data','Destinatario','Evento','Esito'].map(h=>`<th style="text-align:left;padding:9px 12px;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;border-bottom:1px solid #F0F0F0;">${h}</th>`).join('')}</tr></thead><tbody>${S.emailLogs.map((l,i)=>`<tr style="border-bottom:1px solid #F5F5F5;background:${i%2===0?'#fff':'#FAFAFA'};"><td style="padding:9px 12px;color:#888;">${fmtDate(l.created_at)}</td><td style="padding:9px 12px;">${esc(l.to_email||'')}</td><td style="padding:9px 12px;">${esc(l.event||'')}</td><td style="padding:9px 12px;">${l.status==='sent'?'<span style="color:#166534;">✅ Inviata</span>':'<span style="color:#888;">—</span>'}</td></tr>`).join('')}</tbody></table>`;
+}
+
+// ─── WIZARD NEW PROJECT ───────────────────────────
+let wizardStep=1,wizardData={},wizardFloors=[{name:'',rooms:['']}];
+let wizardSelectedClient=null,wizardSelectedContacts=[],wizardPmContact=null;
+
+function openModal(id) {
+  if(id==='modal-new-project') { wizardStep=1; wizardData={}; wizardFloors=[{name:'',rooms:['']}]; wizardSelectedClient=null; wizardSelectedContacts=[]; wizardPmContact=null; renderWizardStep(); }
+  const overlay=document.getElementById(id);
+  overlay.style.display='flex';
+  requestAnimationFrame(()=>{ overlay.classList.add('show'); overlay.querySelector('.modal')?.classList.add('show'); });
+}
+
+function closeModal(id) {
+  const overlay=document.getElementById(id);
+  overlay.classList.remove('show');
+  overlay.querySelector('.modal')?.classList.remove('show');
+  setTimeout(()=>{overlay.style.display='none';},200);
+}
+
+function renderWizardStep() {
+  document.getElementById('wizard-title').textContent=`Nuovo Progetto — Step ${wizardStep}/2`;
+  const body=document.getElementById('wizard-body');
+  const footer=document.getElementById('wizard-footer');
+  if(wizardStep===1) {
+    body.innerHTML=`
+      <div class="form-group"><label class="form-label">Nome / Ref Code *</label><input class="form-input" id="w-ref" value="${esc(wizardData.ref_code||'')}" placeholder="Es. Villa Milano"></div>
+      <div class="form-group"><label class="form-label">Data Inizio</label><input class="form-input" type="date" id="w-date" value="${wizardData.start_date||today()}"></div>
+      <div class="form-group"><label class="form-label">PM Laboratorio</label><input class="form-input" id="w-pm" value="${esc(wizardData.pm_lab||'')}" placeholder="Nome PM"></div>
+      <div class="form-group"><label class="form-label">Cliente</label>
+        ${wizardSelectedClient?`<div style="border:1px solid #E0E0E0;border-radius:10px;padding:10px 14px;background:#F0FDF4;display:flex;justify-content:space-between;align-items:center;"><div><div style="font-weight:700;font-size:14px;">${esc(wizardSelectedClient.company_name)}</div></div><button class="btn btn-ghost btn-sm" onclick="clearWizardClient()">Cambia</button></div>${renderContactCheckboxes()}`:
+        `<div id="w-client-picker"><input class="form-input" id="w-client-search" oninput="renderClientSearch(this.value)" placeholder="🔍 Cerca cliente..."><div id="w-client-results" style="max-height:160px;overflow-y:auto;border:1px solid #E0E0E0;border-radius:10px;background:#FAFAFA;margin-top:4px;"></div><button class="btn btn-ghost btn-sm" style="margin-top:8px;" onclick="openClientModal(null,true)">＋ Nuovo Cliente</button></div>`}
+      </div>`;
+    renderClientSearch('');
+    footer.innerHTML=`<div></div><button class="btn btn-primary" onclick="wizardNext()">Avanti →</button>`;
+  } else {
+    body.innerHTML=`<p style="font-size:13px;color:#888;margin-bottom:4px;">Definisci piani e stanze</p><div id="w-floors"></div><button class="btn btn-outline btn-sm" onclick="addWizardFloor()" style="width:100%;margin-top:8px;">＋ Aggiungi Piano</button>`;
+    renderWizardFloors();
+    footer.innerHTML=`<button class="btn btn-outline" onclick="wizardBack()">← Indietro</button><button class="btn btn-primary" onclick="createProject()">Crea Progetto</button>`;
+  }
+}
+
+function renderContactCheckboxes() {
+  if(!wizardSelectedClient) return '';
+  const contacts=parseJSON(wizardSelectedClient.contacts)||[];
+  if(!contacts.length) return '';
+  return `<div style="margin-top:10px;"><div class="form-label" style="margin-bottom:6px;">Persone di riferimento</div>${contacts.map((c,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;background:${wizardSelectedContacts[i]?.selected?'#F0FDF4':'#F9F9F9'};border:1px solid ${wizardSelectedContacts[i]?.selected?'#BBF7D0':'#F0F0F0'};margin-bottom:6px;"><input type="checkbox" ${wizardSelectedContacts[i]?.selected?'checked':''} onchange="toggleWizardContact(${i},this.checked)"><div style="flex:1;"><span style="font-weight:600;font-size:13px;">${esc(c.full_name)}</span>${c.role?`<span style="font-size:12px;color:#888;margin-left:6px;">(${esc(c.role)})</span>`:''}</div></div>`).join('')}</div>`;
+}
+
+function toggleWizardContact(i,checked) { if(!wizardSelectedContacts[i]) wizardSelectedContacts[i]={}; wizardSelectedContacts[i].selected=checked; if(checked&&wizardPmContact===null) wizardPmContact=i; if(!checked&&wizardPmContact===i) wizardPmContact=wizardSelectedContacts.findIndex((c,idx)=>idx!==i&&c?.selected); renderWizardStep(); }
+function clearWizardClient() { wizardSelectedClient=null; wizardSelectedContacts=[]; wizardPmContact=null; renderWizardStep(); }
+
+function renderClientSearch(q) {
+  const el=document.getElementById('w-client-results');
+  if(!el) return;
+  const filtered=S.clients.filter(c=>c.company_name.toLowerCase().includes((q||'').toLowerCase()));
+  if(!filtered.length) { el.innerHTML='<p style="font-size:13px;color:#888;text-align:center;padding:14px;">Nessun cliente trovato.</p>'; return; }
+  el.innerHTML=filtered.map(c=>`<div onclick="selectWizardClient('${c.id}')" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid #F0F0F0;transition:background 0.12s;" onmouseover="this.style.background='#FFF8F5'" onmouseout="this.style.background='transparent'"><div style="font-weight:600;font-size:14px;">${esc(c.company_name)}</div></div>`).join('');
+}
+
+function selectWizardClient(id) {
+  const c=S.clients.find(cl=>String(cl.id)===String(id));
+  if(!c) return;
+  wizardSelectedClient=c;
+  const contacts=parseJSON(c.contacts)||[];
+  wizardSelectedContacts=contacts.map((ct,i)=>({...ct,selected:i===0}));
+  wizardPmContact=0;
+  renderWizardStep();
+}
+
+function renderWizardFloors() {
+  const el=document.getElementById('w-floors');
+  if(!el) return;
+  el.innerHTML=wizardFloors.map((f,fi)=>`<div style="border:1px solid #E0E0E0;border-radius:10px;padding:14px;margin-bottom:10px;"><div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;"><input class="form-input" style="flex:1;" placeholder="Nome piano (es. Piano Terra)" value="${esc(f.name)}" oninput="wizardFloors[${fi}].name=this.value">${wizardFloors.length>1?`<button class="icon-btn danger" onclick="removeWizardFloor(${fi})">✕</button>`:''}</div>${f.rooms.map((r,ri)=>`<div style="display:flex;gap:8px;align-items:center;margin-left:20px;margin-bottom:6px;"><input class="form-input" style="flex:1;font-size:13px;" placeholder="Nome stanza" value="${esc(r)}" oninput="wizardFloors[${fi}].rooms[${ri}]=this.value">${f.rooms.length>1?`<button class="icon-btn danger" onclick="removeWizardRoom(${fi},${ri})">✕</button>`:''}</div>`).join('')}<button class="btn btn-ghost btn-sm" style="margin-left:20px;" onclick="addWizardRoom(${fi})">＋ Stanza</button></div>`).join('');
+}
+
+function addWizardFloor() { wizardFloors.push({name:'',rooms:['']}); renderWizardFloors(); }
+function removeWizardFloor(i) { wizardFloors.splice(i,1); renderWizardFloors(); }
+function addWizardRoom(fi) { wizardFloors[fi].rooms.push(''); renderWizardFloors(); }
+function removeWizardRoom(fi,ri) { wizardFloors[fi].rooms.splice(ri,1); renderWizardFloors(); }
+
+function wizardNext() {
+  const ref=document.getElementById('w-ref')?.value?.trim();
+  if(!ref) { toast('Inserisci il nome del progetto','error'); return; }
+  wizardData.ref_code=ref;
+  wizardData.start_date=document.getElementById('w-date')?.value||today();
+  wizardData.pm_lab=document.getElementById('w-pm')?.value||'';
+  wizardStep=2; renderWizardStep();
+}
+
+function wizardBack() { wizardStep=1; renderWizardStep(); }
+
+async function createProject() {
+  const floors=wizardFloors.filter(f=>f.name.trim());
+  if(!floors.length) { toast('Aggiungi almeno un piano','error'); return; }
+
+  // Deactivate existing projects
+  for(const p of S.projects||[]) await sbPatch('li_projects',p.id,{is_active:false}).catch(()=>{});
+  const existing=await sbGet('li_projects',{is_active:'true'}).catch(()=>[]);
+  for(const p of existing) await sbPatch('li_projects',p.id,{is_active:false}).catch(()=>{});
+
+  const selContacts=(wizardSelectedContacts||[]).filter(c=>c?.selected);
+  const pmC=selContacts[wizardPmContact]||selContacts[0];
+
+  showLoading(true);
+  closeModal('modal-new-project');
+
+  const project=await sbPost('li_projects',{
+    ref_code:wizardData.ref_code,
+    customer:wizardSelectedClient?.company_name||'',
+    pm_lab:wizardData.pm_lab,
+    pm_customer:pmC?.full_name||'',
+    customer_email:pmC?.email||'',
+    project_contacts:JSON.stringify(selContacts),
+    start_date:wizardData.start_date,
+    last_change_date:new Date().toISOString(),
+    is_active:true,
+  });
+
+  for(let fi=0;fi<floors.length;fi++) {
+    const f=floors[fi];
+    const floor=await sbPost('li_floors',{project_id:project.id,floor_name:f.name,sort_order:fi});
+    for(let ri=0;ri<f.rooms.length;ri++) {
+      if(!f.rooms[ri].trim()) continue;
+      await sbPost('li_rooms',{project_id:project.id,floor_id:floor.id,room_name:f.rooms[ri],status:'Work in Progress',sort_order:ri,is_cancelled:false});
+    }
+  }
+
+  toast('Progetto creato!','success');
+  await loadAll();
+}
+
+// ─── TECHNICIANS ──────────────────────────────────
+function techOptions(selected='') {
+  const opts=S.technicians.filter(t=>t.is_active!==false&&t.is_active!=='false');
+  return `<option value="">— Nessuno —</option>`+opts.map(t=>`<option value="${esc(t.first_name+' '+t.last_name)}" ${(t.first_name+' '+t.last_name)===selected?'selected':''}>${esc(t.first_name)} ${esc(t.last_name)}</option>`).join('');
+}
+
+function editTechnician(id) {
+  const t=S.technicians.find(t=>t.id==id);
+  if(!t) return;
+  document.getElementById('modal-tech-title').textContent='Modifica Tecnico';
+  document.getElementById('tech-edit-id').value=id;
+  document.getElementById('tech-first').value=t.first_name||'';
+  document.getElementById('tech-last').value=t.last_name||'';
+  document.getElementById('tech-role').value=t.role||'';
+  document.getElementById('tech-email').value=t.email||'';
+  openModal('modal-add-tech');
+}
+
+async function saveTechnician() {
+  const first=document.getElementById('tech-first').value.trim();
+  const last=document.getElementById('tech-last').value.trim();
+  if(!first||!last) { toast('Nome e cognome obbligatori','error'); return; }
+  const data={first_name:first,last_name:last,role:document.getElementById('tech-role').value,email:document.getElementById('tech-email').value,is_active:true};
+  const id=document.getElementById('tech-edit-id').value;
+  if(id) await sbPatch('li_technicians',id,data);
+  else await sbPost('li_technicians',data);
+  closeModal('modal-add-tech');
+  document.getElementById('tech-edit-id').value='';
+  document.getElementById('modal-tech-title').textContent='Aggiungi Tecnico';
+  toast('Tecnico salvato','success');
+  await loadAll();
+}
+
+async function deactivateTechnician(id) { await sbPatch('li_technicians',id,{is_active:false}); toast('Tecnico rimosso','info'); await loadAll(); }
+
+// ─── CLIENTS ──────────────────────────────────────
+function openClientModal(id,fromWizard=false) {
+  S.editingClientId=id||null; S._clientFromWizard=!!fromWizard;
+  document.getElementById('modal-client-title').textContent=id?'Modifica Cliente':'Aggiungi Cliente';
+  document.getElementById('client-edit-id').value=id||'';
+  const c=id?S.clients.find(cl=>cl.id==id):null;
+  document.getElementById('client-company').value=c?.company_name||'';
+  document.getElementById('client-notes').value=c?.notes||'';
+  S._clientContacts=c?(parseJSON(c.contacts)||[]).map(ct=>({...ct})):[{}];
+  renderContactFields();
+  openModal('modal-client');
+}
+
+function renderContactFields() {
+  const el=document.getElementById('client-contacts-form');
+  if(!el) return;
+  el.innerHTML=S._clientContacts.map((c,i)=>`<div style="border:1px solid #E0E0E0;border-radius:10px;padding:12px;margin-bottom:8px;background:#FAFAFA;position:relative;">${S._clientContacts.length>1?`<button onclick="removeContactField(${i})" style="position:absolute;top:8px;right:8px;background:none;border:none;cursor:pointer;color:#888;">✕</button>`:''} <div class="grid2"><div class="form-group"><label class="form-label">Nome *</label><input class="form-input" value="${esc(c.full_name||'')}" oninput="S._clientContacts[${i}].full_name=this.value" placeholder="Nome Cognome"></div><div class="form-group"><label class="form-label">Ruolo</label><input class="form-input" value="${esc(c.role||'')}" oninput="S._clientContacts[${i}].role=this.value" placeholder="Es. Proprietario"></div><div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" value="${esc(c.email||'')}" oninput="S._clientContacts[${i}].email=this.value" placeholder="email@esempio.com"></div><div class="form-group"><label class="form-label">Telefono</label><input class="form-input" value="${esc(c.phone||'')}" oninput="S._clientContacts[${i}].phone=this.value" placeholder="+39 333..."></div></div></div>`).join('');
+}
+
+function addContactField() { S._clientContacts.push({}); renderContactFields(); }
+function removeContactField(i) { S._clientContacts.splice(i,1); renderContactFields(); }
+
+async function saveClient() {
+  const company=document.getElementById('client-company').value.trim();
+  if(!company) { toast('Nome azienda obbligatorio','error'); return; }
+  const data={company_name:company,contacts:JSON.stringify(S._clientContacts),notes:document.getElementById('client-notes').value};
+  const id=document.getElementById('client-edit-id').value;
+  let savedClient;
+  if(id) { await sbPatch('li_clients',id,data); savedClient={id,...data}; const idx=S.clients.findIndex(c=>c.id==id); if(idx>=0) S.clients[idx]={...S.clients[idx],...data}; }
+  else { savedClient=await sbPost('li_clients',data); S.clients.push({...savedClient,...data}); }
+  localStorage.setItem('li_cache_clients',JSON.stringify(S.clients));
+  closeModal('modal-client');
+  toast('Cliente salvato','success');
+  if(S._clientFromWizard) { S._clientFromWizard=false; selectWizardClient(savedClient.id); openModal('modal-new-project'); }
+  else await loadAll();
+}
+
+async function deleteClient(id) { genericConfirm('Elimina Cliente','Sei sicuro?',async()=>{ await sbDelete('li_clients',id); toast('Cliente eliminato','info'); await loadAll(); }); }
+function toggleClientExpand(id) { const c=S.clients.find(cl=>cl.id==id); if(c) c._open=!c._open; renderClientList(); }
+
+// ─── FLOORS & ROOMS ───────────────────────────────
+function openAddFloorModal() { document.getElementById('floor-name-input').value=''; openModal('modal-add-floor'); }
+
+async function saveFloor() {
+  const name=document.getElementById('floor-name-input').value.trim();
+  if(!name||!S.project) { toast('Nome piano obbligatorio','error'); return; }
+  await sbPost('li_floors',{project_id:S.project.id,floor_name:name,sort_order:S.floors.length});
+  closeModal('modal-add-floor'); toast('Piano aggiunto','success'); await loadAll();
+}
+
+function openAddRoomModal() {
+  const floorSel=document.getElementById('room-floor-select');
+  const techSel=document.getElementById('room-tech-select-modal');
+  const pFloors=S.floors.filter(f=>f.project_id==S.project?.id);
+  if(floorSel) floorSel.innerHTML=pFloors.map(f=>`<option value="${f.id}">${esc(f.floor_name)}</option>`).join('');
+  if(techSel) techSel.innerHTML=techOptions();
+  document.getElementById('room-name-input').value='';
+  openModal('modal-add-room');
+}
+
+async function saveRoom() {
+  const name=document.getElementById('room-name-input').value.trim();
+  const floorId=document.getElementById('room-floor-select').value;
+  const tech=document.getElementById('room-tech-select-modal').value;
+  if(!name||!floorId) { toast('Nome stanza e piano obbligatori','error'); return; }
+  await sbPost('li_rooms',{project_id:S.project.id,floor_id:floorId,room_name:name,technician:tech,status:'Work in Progress',sort_order:S.rooms.filter(r=>r.floor_id==floorId).length,is_cancelled:false});
+  closeModal('modal-add-room'); toast('Stanza aggiunta','success'); await loadAll();
+}
+
+function openFloorRoomPicker(action) {
+  S.pickerAction=action; S.pickerFloor=null;
+  document.getElementById('picker-title').textContent=action==='rename'?'Rinomina Stanza':'Cancella Stanza';
+  renderPickerFloors(); openModal('modal-floor-room-picker');
+}
+
+function renderPickerFloors() {
+  const pFloors=S.floors.filter(f=>f.project_id==S.project?.id);
+  document.getElementById('picker-body').innerHTML=`<p style="font-size:13px;color:#888;margin-bottom:14px;">Seleziona il piano:</p><div class="floor-pick-grid">${pFloors.map(f=>`<div class="floor-pick-card" onclick="pickerSelectFloor('${f.id}')">${esc(f.floor_name)}</div>`).join('')}</div>`;
+  document.getElementById('picker-footer').innerHTML=`<button class="btn btn-outline" onclick="closeModal('modal-floor-room-picker')">Annulla</button>`;
+}
+
+function pickerSelectFloor(floorId) {
+  S.pickerFloor=floorId;
+  const floor=S.floors.find(f=>f.id==floorId);
+  const rooms=S.rooms.filter(r=>r.floor_id==floorId&&!r.is_cancelled);
+  document.getElementById('picker-title').textContent=`${S.pickerAction==='rename'?'Rinomina':'Cancella'} — ${floor.floor_name}`;
+  document.getElementById('picker-body').innerHTML=`<button class="btn btn-ghost btn-sm" onclick="renderPickerFloors()" style="margin-bottom:12px;">← Torna ai piani</button><div class="room-pick-list">${rooms.map(r=>`<div class="room-pick-item" onclick="pickerSelectRoom('${r.id}','${esc(r.room_name)}')">${esc(r.room_name)}</div>`).join('')}</div>`;
+}
+
+function pickerSelectRoom(roomId,roomName) {
+  if(S.pickerAction==='rename') {
+    const newName=prompt(`Nuovo nome per "${roomName}":`,roomName);
+    if(!newName?.trim()) return;
+    sbPatch('li_rooms',roomId,{room_name:newName.trim()}).then(()=>{ closeModal('modal-floor-room-picker'); toast('Stanza rinominata','success'); loadAll(); });
+  } else {
+    genericConfirm('Cancella Stanza',`Vuoi cancellare "${roomName}"?`,async()=>{ await sbPatch('li_rooms',roomId,{is_cancelled:true,status:'Cancelled'}); closeModal('modal-floor-room-picker'); toast('Stanza cancellata','info'); loadAll(); });
+  }
+}
+
+function openReactivateModal(roomId,roomName) {
+  S._reactivateRoomId=roomId;
+  document.getElementById('reactivate-room-name').textContent=roomName;
+  openModal('modal-reactivate');
+}
+
+async function reactivateRoom() {
+  await sbPatch('li_rooms',S._reactivateRoomId,{is_cancelled:false,status:'Work in Progress',confirmed_date:null,confirmation_text:null});
+  await touchProject(); closeModal('modal-reactivate'); toast('Stanza riattivata','success'); await loadAll();
+}
+
+// ─── REQUESTS ─────────────────────────────────────
+async function addRequestRow() {
+  const roomId=S.currentRoomId;
+  const room=S.rooms.find(r=>r.id==roomId);
+  const reqs=S.requests.filter(r=>r.room_id==roomId);
+  const revisions=[...new Set(reqs.map(r=>r.revision))].filter(Boolean).sort((a,b)=>revNum(a)-revNum(b));
+  const lastRev=revisions[revisions.length-1]||'R0';
+  const revReqs=reqs.filter(r=>r.revision===lastRev);
+  const maxNr=revReqs.reduce((m,r)=>Math.max(m,r.nr||0),0);
+  await sbPost('li_requests',{room_id:roomId,project_id:room.project_id,nr:maxNr+1,revision:lastRev,status:'Waiting Information',requested_date:today(),sort_order:reqs.length});
+  await touchProject(); toast('Riga aggiunta','success'); await loadAll(); if(S.currentPage==='room') renderRoomDetail();
+}
+
+function openAddRevisionModal() {
+  const roomId=S.currentRoomId;
+  const reqs=S.requests.filter(r=>r.room_id==roomId);
+  const revisions=[...new Set(reqs.map(r=>r.revision))].filter(Boolean).sort((a,b)=>revNum(a)-revNum(b));
+  const lastRev=revisions[revisions.length-1]||'R0';
+  const nextRev=`R${revNum(lastRev)+1}`;
+  document.getElementById('revision-modal-title').textContent=`Aggiungi Revisione ${nextRev}`;
+  document.getElementById('revision-modal-desc').textContent=`Nuova revisione: ${nextRev}`;
+  document.getElementById('revision-date-label').textContent=`Data di invio revisione ${lastRev} *`;
+  document.getElementById('revision-prev-date').value='';
+  document.getElementById('revision-error').style.display='none';
+  S._lastRevForAdd=lastRev; S._nextRevForAdd=nextRev;
+  openModal('modal-add-revision');
+}
+
+async function saveRevision() {
+  const date=document.getElementById('revision-prev-date').value;
+  if(!date) { const e=document.getElementById('revision-error'); e.textContent='Inserisci la data di invio.'; e.style.display='block'; return; }
+  const roomId=S.currentRoomId;
+  const room=S.rooms.find(r=>r.id==roomId);
+  const prevReqs=S.requests.filter(r=>r.room_id==roomId&&r.revision===S._lastRevForAdd);
+  for(const req of prevReqs) await sbPatch('li_requests',req.id,{revision_date:date});
+  await sbPost('li_requests',{room_id:roomId,project_id:room.project_id,nr:1,revision:S._nextRevForAdd,status:'Waiting Information',requested_date:today(),sort_order:S.requests.filter(r=>r.room_id==roomId).length});
+  await touchProject(); closeModal('modal-add-revision'); toast(`Revisione ${S._nextRevForAdd} aggiunta`,'success'); await loadAll(); if(S.currentPage==='room') renderRoomDetail();
+}
+
+function openAddRecipientModal() { document.getElementById('recipient-name-input').value=''; openModal('modal-add-recipient'); }
+
+async function saveRecipient() {
+  const name=document.getElementById('recipient-name-input').value.trim();
+  if(!name) return;
+  const roomId=S.currentRoomId;
+  const reqs=S.requests.filter(r=>r.room_id==roomId);
+  for(const req of reqs) {
+    const existing=parseJSON(req.recipients)||[];
+    if(!existing.find(r=>r.name===name)) await sbPatch('li_requests',req.id,{recipients:JSON.stringify([...existing,{name,response:'',date:'',notes:''}])});
+  }
+  closeModal('modal-add-recipient'); toast('Destinatario aggiunto','success'); await loadAll(); if(S.currentPage==='room') renderRoomDetail();
+}
+
+async function updateRequestStatus(reqId,status) {
+  await sbPatch('li_requests',reqId,{status,has_customer_reply:false});
+  const req=S.requests.find(r=>r.id==reqId);
+  if(req) { req.status=status; req.has_customer_reply=false; }
+  await recalcRoomStatus(S.currentRoomId);
+  await touchProject();
+  await loadAll(); if(S.currentPage==='room') renderRoomDetail();
+}
+
+let _labDebounce={};
+async function updateLabRequest(reqId,text) {
+  clearTimeout(_labDebounce[reqId]);
+  _labDebounce[reqId]=setTimeout(async()=>{
+    const en=await translateIT(text);
+    await sbPatch('li_requests',reqId,{lab_request_it:text,lab_request_en:en});
+    const enEl=document.getElementById('en-'+reqId);
+    if(enEl) enEl.textContent=en||'—';
+    await touchProject();
+  },1000);
+}
+
+let _responseDebounce={};
+async function updateCustomerResponse(reqId,text) {
+  clearTimeout(_responseDebounce[reqId]);
+  _responseDebounce[reqId]=setTimeout(async()=>{
+    const en=await translateIT(text);
+    await sbPatch('li_requests',reqId,{customer_response:text,customer_response_en:en,has_customer_reply:!!text});
+    const req=S.requests.find(r=>r.id==reqId);
+    if(req) { req.customer_response=text; req.customer_response_en=en; req.has_customer_reply=!!text; }
+    await touchProject();
+    if(S.currentPage==='room') renderRoomDetail();
+  },1500);
+}
+
+async function updateRecipient(reqId,recName,field,value) {
+  const req=S.requests.find(r=>r.id==reqId);
+  if(!req) return;
+  const recipients=parseJSON(req.recipients)||[];
+  const idx=recipients.findIndex(r=>r.name===recName);
+  if(idx>=0) recipients[idx][field]=value;
+  else recipients.push({name:recName,[field]:value});
+  await sbPatch('li_requests',reqId,{recipients:JSON.stringify(recipients)});
+  if(req) req.recipients=JSON.stringify(recipients);
+}
+
+// ─── CONFIRM ROOM ─────────────────────────────────
+function confirmRoomClick() {
+  const roomId=S.currentRoomId;
+  const reqs=S.requests.filter(r=>r.room_id==roomId);
+  const wiReqs=reqs.filter(r=>r.status==='Waiting Information');
+  if(wiReqs.length>0) {
+    toast(`❌ Impossibile confermare: ${wiReqs.length} richiesta${wiReqs.length>1?'e sono':' è'} in Waiting Information.`,'error');
+    const firstWI=document.getElementById('req-row-'+wiReqs[0].id);
+    if(firstWI) { firstWI.scrollIntoView({behavior:'smooth',block:'center'}); firstWI.classList.add('req-row-wi-highlight'); setTimeout(()=>firstWI.classList.remove('req-row-wi-highlight'),3000); }
+    return;
+  }
+  const revisions=[...new Set(reqs.map(r=>r.revision))].filter(Boolean).sort((a,b)=>revNum(a)-revNum(b));
+  const lastRev=revisions[revisions.length-1]||'R0';
+  const lastRevDate=reqs.find(r=>r.revision===lastRev)?.revision_date;
+  S._confirmLastRev=lastRev; S._confirmLastRevDate=lastRevDate;
+  document.getElementById('confirm-room-desc').textContent=`Ultima revisione: ${lastRev}${lastRevDate?' — inviata il '+fmtDate(lastRevDate):''}`;
+  document.getElementById('confirm-room-date').value='';
+  document.getElementById('confirm-room-preview').style.display='none';
+  document.getElementById('confirm-room-error').style.display='none';
+  document.getElementById('confirm-room-date').oninput=function(){
+    const preview=document.getElementById('confirm-room-preview');
+    if(this.value) { preview.textContent='📝 Verrà salvato: "'+buildConfirmText(this.value,S._confirmLastRev,S._confirmLastRevDate)+'"'; preview.style.display='block'; } else preview.style.display='none';
+  };
+  openModal('modal-confirm-room');
+}
+
+function buildConfirmText(confirmDate,lastRev,lastRevDate) {
+  return `Conferma del ${fmtDate(confirmDate)} riferita alla revisione ${lastRev}${lastRevDate?' del '+fmtDate(lastRevDate):''}`;
+}
+
+async function confirmRoom() {
+  const date=document.getElementById('confirm-room-date').value;
+  if(!date) { const e=document.getElementById('confirm-room-error'); e.textContent='Inserisci la data di conferma.'; e.style.display='block'; return; }
+  const roomId=S.currentRoomId;
+  const room=S.rooms.find(r=>r.id==roomId);
+  const confirmText=buildConfirmText(date,S._confirmLastRev,S._confirmLastRevDate);
+  await sbPatch('li_rooms',roomId,{status:'Confirmed',confirmed_date:date,confirmation_text:confirmText});
+  const reqs=S.requests.filter(r=>r.room_id==roomId&&r.status!=='Cancelled');
+  for(const req of reqs) await sbPatch('li_requests',req.id,{status:'Confirmed'});
+  await touchProject();
+  closeModal('modal-confirm-room');
+  toast(`✅ Stanza ${room.room_name} confermata il ${fmtDate(date)}`,'success');
+  await loadAll(); if(S.currentPage==='room') renderRoomDetail();
+}
+
+async function saveRoomTechnician(val) {
+  if(!S.currentRoomId) return;
+  await sbPatch('li_rooms',S.currentRoomId,{technician:val});
+  const room=S.rooms.find(r=>r.id==S.currentRoomId);
+  if(room) room.technician=val;
+}
+
+async function updateRoomTech(roomId,val) {
+  await sbPatch('li_rooms',roomId,{technician:val});
+  const room=S.rooms.find(r=>r.id==roomId);
+  if(room) room.technician=val;
+}
+
+async function editCustomerEmail() {
+  const val=prompt('Email cliente:',S.project?.customer_email||'');
+  if(val===null) return;
+  await sbPatch('li_projects',S.project.id,{customer_email:val.trim()});
+  if(S.project) S.project.customer_email=val.trim();
+  renderPO(); toast('Email aggiornata','success');
+}
+
+// ─── IMAGES & FILES ───────────────────────────────
+async function uploadLabImage(reqId,input) {
+  const file=input.files[0]; if(!file) return;
+  const url=await uploadToSB(file,'images');
+  if(!url) return;
+  await sbPatch('li_requests',reqId,{image_url:url});
+  const req=S.requests.find(r=>r.id==reqId);
+  if(req) req.image_url=url;
+  await touchProject(); renderRequestsTable(); input.value='';
+}
+
+async function uploadCustomerImage(reqId,input) {
+  const file=input.files[0]; if(!file) return;
+  const url=await uploadToSB(file,'images');
+  if(!url) return;
+  const req=S.requests.find(r=>r.id==reqId);
+  const existing=parseJSON(req?.customer_images)||[];
+  if(existing.length>=5) { toast('Massimo 5 immagini','error'); return; }
+  const newImgs=[...existing,{url,label:'👤 Cliente'}];
+  await sbPatch('li_requests',reqId,{customer_images:JSON.stringify(newImgs),has_customer_reply:true});
+  if(req) { req.customer_images=JSON.stringify(newImgs); req.has_customer_reply=true; }
+  await touchProject(); renderRequestsTable(); input.value='';
+}
+
+async function uploadToSB(file,bucket='uploads') {
+  // For now use a public URL approach - store as base64 data URL for simplicity
+  // In production, configure Supabase Storage buckets
+  return new Promise((resolve)=>{
+    const reader=new FileReader();
+    reader.onload=e=>resolve(e.target.result);
+    reader.onerror=()=>{ toast('Errore upload','error'); resolve(null); };
+    reader.readAsDataURL(file);
+  });
+}
+
+let _pendingPDFFile=null;
+async function uploadDWG(input) {
+  const file=input.files[0]; if(!file) return;
+  if(!file.name.toLowerCase().endsWith('.dwg')) { toast('Solo file .dwg','error'); return; }
+  const url=await uploadToSB(file,'dwg');
+  if(!url) return;
+  const room=S.rooms.find(r=>r.id==S.currentRoomId);
+  await sbPost('li_work_documents',{room_id:S.currentRoomId,project_id:room.project_id,file_url:url,file_name:file.name,file_type:'dwg',upload_date:today()});
+  toast('DWG caricato','success'); await loadAll(); renderTechLibrary(); input.value='';
+}
+
+async function deleteDWG(id) { genericConfirm('Elimina DWG','Vuoi eliminare?',async()=>{ await sbDelete('li_work_documents',id); toast('DWG eliminato','info'); await loadAll(); renderTechLibrary(); }); }
+
+async function uploadPDF(input) {
+  const file=input.files[0]; if(!file) return;
+  if(!file.name.toLowerCase().endsWith('.pdf')) { toast('Solo file .pdf','error'); return; }
+  _pendingPDFFile=file;
+  document.getElementById('pdf-name-input').value=file.name;
+  document.getElementById('pdf-sign-date').value='';
+  document.getElementById('pdf-meta-error').style.display='none';
+  const reqs=S.requests.filter(r=>r.room_id==S.currentRoomId);
+  const revisions=[...new Set(reqs.map(r=>r.revision))].filter(Boolean).sort((a,b)=>revNum(a)-revNum(b));
+  document.getElementById('pdf-revision-select').innerHTML=revisions.map(r=>`<option value="${r}">${r}</option>`).join('');
+  openModal('modal-pdf-meta'); input.value='';
+}
+
+async function confirmPDFUpload() {
+  const name=document.getElementById('pdf-name-input').value.trim();
+  const date=document.getElementById('pdf-sign-date').value;
+  const rev=document.getElementById('pdf-revision-select').value;
+  if(!name||!date||!rev) { const e=document.getElementById('pdf-meta-error'); e.textContent='Tutti i campi sono obbligatori.'; e.style.display='block'; return; }
+  const url=await uploadToSB(_pendingPDFFile,'pdf');
+  if(!url) return;
+  const room=S.rooms.find(r=>r.id==S.currentRoomId);
+  await sbPost('li_confirmed_drawings',{room_id:S.currentRoomId,project_id:room.project_id,file_url:url,file_name:name,sign_date:date,revision:rev,upload_date:today()});
+  closeModal('modal-pdf-meta'); toast('PDF firmato caricato','success'); await loadAll(); renderTechLibrary();
+}
+
+async function deletePDF(id) { genericConfirm('Elimina PDF','Vuoi eliminare?',async()=>{ await sbDelete('li_confirmed_drawings',id); toast('PDF eliminato','info'); await loadAll(); renderTechLibrary(); }); }
+
+// ─── ROOM STATUS ──────────────────────────────────
+async function recalcRoomStatus(roomId) {
+  const room=S.rooms.find(r=>r.id==roomId);
+  if(!room||room.is_cancelled||room.status==='Confirmed') return;
+  const reqs=S.requests.filter(r=>r.room_id==roomId);
+  const active=reqs.filter(r=>r.status!=='Cancelled');
+  let newStatus='Work in Progress';
+  if(active.some(r=>r.status==='Waiting Information')) newStatus='Waiting Information';
+  await sbPatch('li_rooms',roomId,{status:newStatus});
+  if(room) room.status=newStatus;
+}
+
+async function touchProject() {
+  if(!S.project) return;
+  const now=new Date().toISOString();
+  await sbPatch('li_projects',S.project.id,{last_change_date:now});
+  if(S.project) S.project.last_change_date=now;
+}
+
+async function translateIT(text) {
+  if(!text?.trim()) return '';
+  try {
+    const r=await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=it|en`);
+    const d=await r.json();
+    return d?.responseData?.translatedText||'';
+  } catch(e) { return ''; }
+}
+
+async function sendEmailNotification(to,subject,event) {
+  try { await sbPost('li_email_logs',{to_email:to,event:subject,status:'sent',project_id:S.project?.id||null,room_name:''}); } catch(e) {}
+}
+
+// ─── UTILS ────────────────────────────────────────
+function statusBadge(status,large=false) {
+  const map={'Waiting Information':['badge-waiting','⏳ Waiting Information'],'Work in Progress':['badge-wip','🔵 Work in Progress'],'Defined':['badge-defined','✓ Defined'],'Confirmed':['badge-confirmed','✅ Confirmed'],'Cancelled':['badge-cancelled','✕ Cancelled']};
+  const [cls,label]=map[status]||['badge-cancelled',status];
+  return `<span class="badge ${cls}" style="${large?'font-size:13px;padding:5px 14px;':''}">${label}</span>`;
+}
+
+function fmtDate(d) {
+  if(!d) return '—';
+  const dt=new Date(d); if(isNaN(dt)) return d;
+  return `${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}/${dt.getFullYear()}`;
+}
+
+function fmtDateTime(d) {
+  if(!d) return '—';
+  const dt=new Date(d); if(isNaN(dt)) return d;
+  return `${fmtDate(d)} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+}
+
+function today() { return new Date().toISOString().split('T')[0]; }
+function revNum(r) { return parseInt((r||'R0').replace('R',''),10)||0; }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function parseJSON(s) { try { return typeof s==='string'?JSON.parse(s):s; } catch(e) { return null; } }
+
+function genericConfirm(title,msg,onConfirm) {
+  document.getElementById('generic-confirm-title').textContent=title;
+  document.getElementById('generic-confirm-msg').textContent=msg;
+  document.getElementById('generic-confirm-btn').onclick=()=>{ closeModal('modal-generic-confirm'); onConfirm(); };
+  openModal('modal-generic-confirm');
+}
+
+function openLightbox(images,index) {
+  S.lbImages=images; S.lbIndex=index;
+  document.getElementById('lb-img').src=images[index]?.url||images[index]||'';
+  document.getElementById('lightbox').classList.add('show');
+}
+function closeLightbox() { document.getElementById('lightbox').classList.remove('show'); }
+function lbNav(dir) {
+  S.lbIndex=(S.lbIndex+dir+S.lbImages.length)%S.lbImages.length;
+  document.getElementById('lb-img').src=S.lbImages[S.lbIndex]?.url||S.lbImages[S.lbIndex]||'';
+}
+
+document.querySelectorAll('.modal-overlay').forEach(o=>{
+  o.addEventListener('click',e=>{ if(e.target===o) { o.classList.remove('show'); o.querySelector('.modal')?.classList.remove('show'); setTimeout(()=>o.style.display='none',200); } });
+});
+
+// ─── BOOT ─────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', ()=>{ loadAll(); });
+
+</script>
+</body>
+</html>
